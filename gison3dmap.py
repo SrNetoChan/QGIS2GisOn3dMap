@@ -26,7 +26,12 @@ from PyQt4.QtGui import QAction, QIcon
 import resources_rc
 # Import the code for the dialog
 from gison3dmap_dialog import gison3dmapDialog
-import os.path
+import os.path, sys
+
+currentPath = os.path.dirname( __file__ )
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/tools'))
+
+import layersxml
 
 
 class gison3dmap:
@@ -161,12 +166,32 @@ class gison3dmap:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ':/plugins/gison3dmap/icon.png'
+        #FIXME: Get new icons for buttons
         self.add_action(
             icon_path,
-            text=self.tr(u'gison3dmap Client'),
-            callback=self.run,
+            text=self.tr(u'Seleção'),
+            callback=self.sendSelection,
             parent=self.iface.mainWindow())
-
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Camada'),
+            callback=self.sendLayer,
+            parent=self.iface.mainWindow())
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Mapa'),
+            callback=self.sendMap,
+            parent=self.iface.mainWindow())
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Enviar comandos'),
+            callback=self.sendCommands,
+            parent=self.iface.mainWindow())
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Configuração'),
+            callback=self.configuration,
+            parent=self.iface.mainWindow())
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -190,3 +215,23 @@ class gison3dmap:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
             pass
+
+    def sendSelection(self):
+        """Function to send selected features on the active layer to gison3dmap"""
+        pass
+
+    def sendLayer(self):
+        """Function to send active layer to gison3dmap"""
+        pass
+
+    def sendMap(self):
+        """Function to send all visible layers to gison3dmap"""
+        pass
+
+    def sendCommands(self):
+        """Function to send single commands to gison3dmap"""
+        pass
+
+    def configuration(self):
+        """Function to send single commands to gison3dmap"""
+        pass
