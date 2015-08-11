@@ -27,11 +27,7 @@ import resources_rc
 # Import the code for the dialog
 from gison3dmap_dialog import gison3dmapDialog
 import os.path, sys
-
-currentPath = os.path.dirname( __file__ )
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/tools'))
-
-import layersxml
+from tools.layersxml import define_vector_layer
 
 
 class gison3dmap:
@@ -166,7 +162,7 @@ class gison3dmap:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ':/plugins/gison3dmap/icon.png'
-        #FIXME: Get new icons for buttons
+        # FIXME: Get new icons for buttons
         self.add_action(
             icon_path,
             text=self.tr(u'Seleção'),
@@ -181,6 +177,11 @@ class gison3dmap:
             icon_path,
             text=self.tr(u'Mapa'),
             callback=self.sendMap,
+            parent=self.iface.mainWindow())
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Limpar'),
+            callback=self.clean,
             parent=self.iface.mainWindow())
         self.add_action(
             icon_path,
@@ -222,10 +223,41 @@ class gison3dmap:
 
     def sendLayer(self):
         """Function to send active layer to gison3dmap"""
-        pass
+        map_canvas = self.iface.mapCanvas()
+        layer = map_canvas.currentLayer()
+
+        #FIXME:: Make Button inactive if not layer and remove that test from here
+        if layer and layer.type() == layer.VectorLayer:
+            vector_layer_xml = define_vector_layer(layer)
+            commands = list()
+            commands.append('CLEAN')
+            if vector_layer_xml:
+                commands.append('DEFINELAYER ' + define_vector_layer(layer))
+                # LAYERSQL --> Função
+                commands.append('DRAW')
+                # Send list of messages to controller --> function
+                for command in commands:
+                    print command
+            else:
+                    # FIXME::Put this in message
+                    print "This QGIS symbol renderer is not supported by gison3dmap"
+        elif layer and layer.type() == layer.RasterLayer:
+            pass
+            # CLEAR
+            # DEFINE GRID --> Função
+            # GRID -- Função
+            # DRAW
+            # Send list of messages to controller
+        else:
+            print "Please select a Vector or Raster Layer" #FIXME Use a warning message for this
+
 
     def sendMap(self):
         """Function to send all visible layers to gison3dmap"""
+        pass
+
+    def clean(self):
+        """Function to clean all layers from gison3dmap"""
         pass
 
     def sendCommands(self):
