@@ -27,7 +27,7 @@ import resources_rc
 # Import the code for the dialog
 from gison3dmap_dialog import gison3dmapDialog
 import os.path, sys
-from tools.layersxml import define_vector_layer
+from tools.layersxml import get_layer_legend, define_layer, get_layer_filter
 
 
 class gison3dmap:
@@ -228,11 +228,13 @@ class gison3dmap:
 
         #FIXME:: Make Button inactive if not layer and remove that test from here
         if layer and layer.type() == layer.VectorLayer:
-            vector_layer_xml = define_vector_layer(layer)
+            layer_legend = get_layer_legend(layer)
             commands = list()
             commands.append('CLEAN')
-            if vector_layer_xml:
-                commands.append('DEFINELAYER ' + define_vector_layer(layer))
+            if layer_legend:
+                commands.append('DEFINELAYER ' + define_layer(layer))
+                commands.append('LEGEND ' + layer_legend)
+                commands.append('LAYERSQL ' + get_layer_filter(layer))
                 # LAYERSQL --> Função
                 commands.append('DRAW')
                 # Send list of messages to controller --> function

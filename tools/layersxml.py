@@ -24,7 +24,7 @@
 import lxml.etree as ET
 
 
-def define_vector_layer(layer):
+def get_layer_legend(layer):
     """
     Converts Layer's Symbols and Labels properties to gison3dmap XML
     """
@@ -66,44 +66,7 @@ def define_vector_layer(layer):
         #     rules = rule_list
         else:
             print "This renderer is not supported by gison3dmap"
-        """
-        for rule in rules:
 
-                symbol = rule.symbol()
-                symbol_layer = symbol.symbolLayers()[0]
-                properties = symbol_layer.properties()
-
-                layer_legend = ET.Element('LayerLegend')
-                vector_layer_legend = ET.SubElement(layer_legend, 'VectorLayerLegend')
-                legend = ET.SubElement(vector_layer_legend, 'Legend')
-
-                legend.set('BackColor', properties['color'])
-                legend.set('LineColor', properties['outline_color'])
-                legend.set('Width', properties['outline_width'])
-                legend.set('ImagePath','')
-                legend.set('ImageScale','')
-                legend.set('EnableHatch','False')
-                legend.set('Hatch','0')
-                legend.set('FieldName','')
-                legend.set('DashPattern','') #??
-                legend.set('CampoRotacao','')
-                legend.set('CorSel','') #obter das configuracoes do projecto
-
-                if len(rules) > 1: #FIXME::Pode ser só uma rule e ser categorias
-                    # Create legend's child to represent categories or ranges if necessary
-                    # FIXME::this only applyes to category and classes symbols
-                    # FIXME::This will need to Loop
-                    legend_break = ET.SubElement(legend,'Break')
-                    legend_break.set('EndColor', '')
-                    legend_break.set('StartColor', '')
-                    legend_break.set('OutlineEndColor', '')
-                    legend_break.set('OutlineStartColor', '')
-                    legend_break.set('StartText', '')
-                    legend_break.set('EndText', '')
-                    legend_break.set('Rotulo', '')
-                    legend_break.set('Imagem', '')
-                    legend_break.set('Width', '')
-        """
         # prepare xml string for output
         xml_string = ET.tostring(layer_legend, pretty_print=False, xml_declaration=True, encoding='utf 8')
         # Remove inconvenient end of line
@@ -159,6 +122,7 @@ def set_legend(legend, symbol_layer=None):
         else:
             print "Not possible to render the symbol properly a default was used instead"
 
+
 def set_break(legend, endcolor='', startcolor='', outlineendcolor='',
               outlinestartcolor='', starttext='', endtext='', rotulo='', imagem='', width=''):
     """
@@ -176,6 +140,26 @@ def set_break(legend, endcolor='', startcolor='', outlineendcolor='',
     legend_break.set('Rotulo', rotulo)
     legend_break.set('Imagem', imagem)
     legend_break.set('Width', width)
+
+
+def define_layer(layer):
+    layer_name = layer.name()
+    provider = layer.dataProvider()
+    provider_type = provider.storageType()
+    source = provider.dataSourceUri()
+    # FIXME:: Must remake provider_type and source to gison3map syntax
+    return layer_name + ',' + provider_type + ',' + source
+
+
+def get_layer_filter(layer):
+    provider = layer.dataProvider()
+    subset_string = provider.subsetString()
+    if len(subset_string) == 0:
+        return '1=1'
+    else:
+        # FIXME:: Must remake substring to the gison3dmap syntax
+        return subset_string
+
 
 if __name__ == '__main__':
     # Creates the XML structure to store layer symbols and labels
