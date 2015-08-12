@@ -22,6 +22,7 @@
 """
 
 import lxml.etree as ET
+import utils
 
 
 def get_layer_legend(layer):
@@ -102,14 +103,14 @@ def set_legend(legend, symbol_layer=None):
         properties = symbol_layer.properties()
 
         if type == 'SimpleMarker' or type == 'SimpleFill':
-            legend.set('BackColor', properties['color'])
-            legend.set('LineColor', properties['outline_color'])
+            legend.set('BackColor', utils.rgba2argb(properties['color']))
+            legend.set('LineColor', utils.rgba2argb(properties['outline_color']))
     # FIXME:: Need to convert line width to pixels
             legend.set('Width', properties['outline_width'])
             legend.set('DashPattern', '')  # ??
 
         elif type == 'SimpleLine':
-            legend.set('LineColor', properties['line_color'])
+            legend.set('LineColor', utils.rgba2argb(properties['line_color']))
     # FIXME:: Need to convert line width to pixels
             legend.set('Width', properties['line_width'])
             legend.set('DashPattern', '')  # ??
