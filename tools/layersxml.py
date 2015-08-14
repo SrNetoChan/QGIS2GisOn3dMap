@@ -21,7 +21,10 @@
  ***************************************************************************/
 """
 
+from qgis.core import *
+
 import lxml.etree as ET
+import re
 import utils
 
 
@@ -42,7 +45,7 @@ def get_layer_legend(layer):
         legend = ET.SubElement(vector_layer_legend, 'Legend')
 
         if renderer.type() == 'singleSymbol':
-            symbol_layer = renderer.symbol().symbolLayers()[0] #only considers first layer of symbol
+            symbol_layer = renderer.symbol().symbolLayers()[0]  # only considers first layer of symbol
             set_legend(legend, symbol_layer)
 
         elif renderer.type() == 'categorizedSymbol':
@@ -68,21 +71,27 @@ def get_layer_legend(layer):
         else:
             print "This renderer is not supported by gison3dmap"
 
+        if layer.labelsEnabled():
+            label_layer = ET.SubElement(layer_legend, 'LabelLayer')
+            label_settings = QgsPalLayerSettings.fromLayer(layer)
+            set_label(label_layer, layer.name(), label_settings)
+        # FIXME::Need to add labels
+
+
         # prepare xml string for output
         xml_string = ET.tostring(layer_legend, pretty_print=False, xml_declaration=True, encoding='utf 8')
         # Remove inconvenient end of line
-        xml_string = xml_string.replace('\n','')
+        xml_string = xml_string.replace('\n', '')
         return xml_string
 
+
 def set_legend(legend, symbol_layer=None):
-               # backcolor='', linecolor='', width='', imagepath='', imagescale='1', enablehatch='False',
-               # hatch='0', fieldname='', dashpattern='', camporotacao='', corset='255,255,255,0'):
+    # backcolor='', linecolor='', width='', imagepath='', imagescale='1', enablehatch='False',
+    # hatch='0', fieldname='', dashpattern='', camporotacao='', corset='255,255,255,0'):
     """
-    Fills legend tags
-    :rtype : object
+    Function to fill legend attributes with values from the symbolLayer
     """
     # Set default values for the case that layer_symbol arguments is not undeclared
-    # FIXME::Need to convert colors to gison3dmap color schema ARGB instead RGBA
     legend.set('BackColor', '')
     legend.set('LineColor', '')
     # FIXME:: Need to convert line width to pixels
@@ -105,13 +114,13 @@ def set_legend(legend, symbol_layer=None):
         if type == 'SimpleMarker' or type == 'SimpleFill':
             legend.set('BackColor', utils.rgba2argb(properties['color']))
             legend.set('LineColor', utils.rgba2argb(properties['outline_color']))
-    # FIXME:: Need to convert line width to pixels
+            # FIXME:: Need to convert line width to pixels
             legend.set('Width', properties['outline_width'])
             legend.set('DashPattern', '')  # ??
 
         elif type == 'SimpleLine':
             legend.set('LineColor', utils.rgba2argb(properties['line_color']))
-    # FIXME:: Need to convert line width to pixels
+            # FIXME:: Need to convert line width to pixels
             legend.set('Width', properties['line_width'])
             legend.set('DashPattern', '')  # ??
 
@@ -127,11 +136,11 @@ def set_legend(legend, symbol_layer=None):
 def set_break(legend, endcolor='', startcolor='', outlineendcolor='',
               outlinestartcolor='', starttext='', endtext='', rotulo='', imagem='', width=''):
     """
-    Create legend's breaks to represent categories or ranges if necessary
+    Create legend's breaks to represent categories or ranges
 
     :type width: object
     """
-    legend_break = ET.SubElement(legend,'Break')
+    legend_break = ET.SubElement(legend, 'Break')
     legend_break.set('EndColor', endcolor)
     legend_break.set('StartColor', startcolor)
     legend_break.set('OutlineEndColor', outlineendcolor)
@@ -143,12 +152,69 @@ def set_break(legend, endcolor='', startcolor='', outlineendcolor='',
     legend_break.set('Width', width)
 
 
+def set_label(label_layer, layer_name, lab_set):
+    """
+    Fills label attributes with values from the layers label object
+    :param lab_set: Layer Label settings
+    :type lab_set: QgsPalLayerSettings
+    """
+    label_layer.set('Nome', layer_name)
+    # See if label is built by a single field or expression
+    if lab_set.isExpression:
+        field_name = ''
+        expression_enable = 'True'
+        expression = lab_set.getLabelExpression().dump() #FIXME:: Need to check Expressions syntax
+    else:
+        field_name = lab_set.fieldName
+        expression_enable = 'False'
+        expression =''
+    label_layer.set('ColunaText', field_name)
+    label_layer.set('ExpressaoRotulo', expression)
+    label_layer.set('ColunaRotacao', '')
+    label_layer.set('Prioridade', str(lab_set.priority)) #FIXME rever valores pode ir de 0 a 100
+    label_layer.set('CollisionDetectio', 'True')
+    label_layer.set('Cor', '-16777216') # FIXME:: não tenho a certeza
+    label_layer.set('Activo', 'True')
+    label_layer.set('ExpressaoActiva', expression_enable)
+    if lab_set.scaleVisibility:
+        min_scale = str(lab_set.scaleMin)
+        max_scale = str(lab_set.scaleMax)
+    else:
+        min_scale = '0'
+        max_scale = '1.79769313486232E+308'
+
+    label_layer.set('MaxRotuloVisible', max_scale)
+    label_layer.set('MinRotuloVisible', min_scale)
+    label_layer.set('CollisionBufferW', '0')
+    label_layer.set('CollisionBufferH', '0')
+
+    cor_fundo = ET.SubElement(label_layer, 'CorFundo')
+    cor_fundo.set('Cor', str(lab_set.textColor.rgb())) #::FIXME:: this color does not work...
+
+    if lab_set.bufferDraw:
+        halo = ET.SubElement(label_layer, 'CorFundo')
+        halo.set('HaloCor', str(lab_set.bufferColor))
+        halo.set('HaloCor', str(lab_set.bufferSize))
+
+    offset = ET.SubElement(label_layer, 'Offset')
+    offset.set('OffsetX', "{:.3f}".format(lab_set.xOffset)) # FIXME:: What are the units of the offset?
+    offset.set('OffsetY', "{:.3f}".format(lab_set.yOffset))
+
+    fonte = ET.SubElement(label_layer, 'Fonte')
+    fonte.set('Tamanho', "{:.3f}".format(lab_set.textFont.pointSizeF()))
+    fonte.set('Nome', lab_set.textFont.family())
+    fonte.set('StrickOut', str(lab_set.textFont.strikeOut()))
+    fonte.set('Underline', str(lab_set.textFont.underline()))
+    fonte.set('Bold', str(lab_set.textFont.bold()))
+    fonte.set('Italic', str(lab_set.textFont.italic()))
+
+
 def define_layer(layer):
     layer_name = layer.name()
     provider = layer.dataProvider()
     provider_type = provider.storageType()
-    source = provider.dataSourceUri()
-    # FIXME:: Must remake provider_type and source to gison3map syntax
+    source = re.sub(r'(.*)\|layerid=\d+', r'\1', provider.dataSourceUri())
+    # FIXME:: Must remake provider_type gison3map syntax
     return layer_name + ',' + provider_type + ',' + source
 
 
@@ -239,5 +305,5 @@ if __name__ == '__main__':
     fonte.set('Italic', 'False')
 
     string = ET.tostring(layer_legend, pretty_print=False, xml_declaration=True, encoding='utf 8')
-    string = string.replace('\n','')
+    string = string.replace('\n', '')
     print string
