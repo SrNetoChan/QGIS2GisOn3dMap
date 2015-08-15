@@ -52,15 +52,15 @@ def get_layer_legend(layer):
             set_legend(legend)
             categories = renderer.categories()
             for category in categories:
-                p = category.symbol().symbolLayers()[0].properties()
-                set_break(legend)
+                symbol_layer = category.symbol().symbolLayers()[0].properties()
+                set_break(legend, symbol_layer)
 
         elif renderer.type() == 'graduatedSymbol':
             set_legend(legend)
+            legend.set('FieldName', renderer.classAttribute())
             ranges = renderer.ranges()
-            for each_range in ranges:
-                p = each_range.symbol().symbolLayers()[0].properties()
-                set_break(legend)
+            for range in ranges:
+                set_break(legend, range)
 
         # TODO: Add support to RuleRenderer
         # elif renderer.type() == 'RuleRenderer':
@@ -133,23 +133,39 @@ def set_legend(legend, symbol_layer=None):
             print "Not possible to render the symbol properly a default was used instead"
 
 
-def set_break(legend, endcolor='', startcolor='', outlineendcolor='',
-              outlinestartcolor='', starttext='', endtext='', rotulo='', imagem='', width=''):
+def set_break(legend, range):
     """
     Create legend's breaks to represent categories or ranges
 
     :type width: object
     """
+    symbol_layer = range.symbol().symbolLayers()[0]
+    type = symbol_layer.layerType()
+    properties = symbol_layer.properties()
+
+    # Create a new break sub-element in legend
     legend_break = ET.SubElement(legend, 'Break')
-    legend_break.set('EndColor', endcolor)
-    legend_break.set('StartColor', startcolor)
-    legend_break.set('OutlineEndColor', outlineendcolor)
-    legend_break.set('OutlineStartColor', outlinestartcolor)
-    legend_break.set('StartText', starttext)
-    legend_break.set('EndText', endtext)
-    legend_break.set('Rotulo', rotulo)
-    legend_break.set('Imagem', imagem)
-    legend_break.set('Width', width)
+
+    if type == 'SimpleMarker' or type == 'SimpleFill':
+        color = utils.rgba2argb(properties['color'])
+        line_color = utils.rgba2argb(properties['outline_color'])
+        line_width = properties['outline_width']
+
+    elif type == 'SimpleLine':
+        color = utils.rgba2argb(properties['line_color'])
+        line_color = utils.rgba2argb(properties['line_color'])
+        line_width = properties['line_width']
+
+    legend_break.set('EndColor', color)
+    legend_break.set('StartColor', line_color)
+    legend_break.set('OutlineEndColor', line_color)
+    legend_break.set('OutlineStartColor', line_color)
+    legend_break.set('StartText', "{:.9f}".format(range.lowerValue()))
+    legend_break.set('EndText', "{:.9f}".format(range.upperValue()))
+    legend_break.set('Rotulo', range.label())
+    legend_break.set('Imagem', '')
+    legend_break.set('Width', str(line_width))
+
 
 
 def set_label(label_layer, layer_name, lab_set):
@@ -201,7 +217,7 @@ def set_label(label_layer, layer_name, lab_set):
     offset.set('OffsetY', "{:.3f}".format(lab_set.yOffset))
 
     fonte = ET.SubElement(label_layer, 'Fonte')
-    fonte.set('Tamanho', "{:.3f}".format(lab_set.textFont.pointSizeF()))
+    fonte.set('Tamanho', "{:.1f}".format(lab_set.textFont.pointSizeF()))
     fonte.set('Nome', lab_set.textFont.family())
     fonte.set('StrickOut', str(lab_set.textFont.strikeOut()))
     fonte.set('Underline', str(lab_set.textFont.underline()))
