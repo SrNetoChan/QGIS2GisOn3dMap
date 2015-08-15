@@ -48,19 +48,22 @@ def get_layer_legend(layer):
             symbol_layer = renderer.symbol().symbolLayers()[0]  # only considers first layer of symbol
             set_legend(legend, symbol_layer)
 
-        elif renderer.type() == 'categorizedSymbol':
-            set_legend(legend)
-            categories = renderer.categories()
-            for category in categories:
-                symbol_layer = category.symbol().symbolLayers()[0].properties()
-                set_break(legend, symbol_layer)
+        # elif renderer.type() == 'categorizedSymbol':
+        #     set_legend(legend)
+        #     categories = renderer.categories()
+        #     for category in categories:
+        #         symbol_layer = category.symbol().symbolLayers()[0].properties()
+        #         set_break(legend, symbol_layer)
 
-        elif renderer.type() == 'graduatedSymbol':
+        elif renderer.type() in ('graduatedSymbol', 'categorizedSymbol' ):
             set_legend(legend)
             legend.set('FieldName', renderer.classAttribute())
-            ranges = renderer.ranges()
-            for range in ranges:
-                set_break(legend, range)
+            if renderer.type() == 'categorizedSymbol':
+                value_breaks = renderer.categories()
+            else:
+                value_breaks = renderer.ranges()
+            for value_break in value_breaks:
+                set_break(legend, value_break)
 
         # TODO: Add support to RuleRenderer
         # elif renderer.type() == 'RuleRenderer':
@@ -133,13 +136,13 @@ def set_legend(legend, symbol_layer=None):
             print "Not possible to render the symbol properly a default was used instead"
 
 
-def set_break(legend, range):
+def set_break(legend, value_break):
     """
     Create legend's breaks to represent categories or ranges
 
     :type width: object
     """
-    symbol_layer = range.symbol().symbolLayers()[0]
+    symbol_layer = value_break.symbol().symbolLayers()[0]
     type = symbol_layer.layerType()
     properties = symbol_layer.properties()
 
@@ -155,14 +158,28 @@ def set_break(legend, range):
         color = utils.rgba2argb(properties['line_color'])
         line_color = utils.rgba2argb(properties['line_color'])
         line_width = properties['line_width']
+    else:
+        print "Not possible to render the symbol properly a default was used instead"
 
     legend_break.set('EndColor', color)
     legend_break.set('StartColor', line_color)
     legend_break.set('OutlineEndColor', line_color)
     legend_break.set('OutlineStartColor', line_color)
-    legend_break.set('StartText', "{:.9f}".format(range.lowerValue()))
-    legend_break.set('EndText', "{:.9f}".format(range.upperValue()))
-    legend_break.set('Rotulo', range.label())
+
+    # Check if value_break has a single value or a lower and upper one
+    # This is the only diference betweem ranges and categories
+    try:
+        legend_break.set('StartText', "{:.9f}".format(value_break.lowerValue()))
+        legend_break.set('EndText', "{:.9f}".format(value_break.upperValue()))
+    except:
+
+        # Convert to string in case of non string values
+        value = value_break.value()
+        if not isinstance(value, basestring):
+            value = str(value)
+        legend_break.set('StartText', value) # FIXME::Must check if values are always strings
+        legend_break.set('EndText', value)
+    legend_break.set('Rotulo', value_break.label())
     legend_break.set('Imagem', '')
     legend_break.set('Width', str(line_width))
 
