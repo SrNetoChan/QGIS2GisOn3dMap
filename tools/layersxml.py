@@ -24,6 +24,7 @@
 from qgis.core import *
 
 import lxml.etree as ET
+import random
 import re
 import utils
 
@@ -31,6 +32,12 @@ import utils
 def get_layer_legend(layer):
     """
     Converts Layer's Symbols and Labels properties to gison3dmap XML
+
+    :param layer: Vector Layer
+    :type layer: QgsVectorLayer
+
+    :returns: XML with all needed information about the layer
+    :rtype: String
     """
     renderer = layer.rendererV2()
 
@@ -111,27 +118,26 @@ def set_legend(legend, symbol_layer=None):
 
     # Check the type of symbolLayer and fill the legend attributes according
     if symbol_layer:
-        type = symbol_layer.layerType()
+        layer_type = symbol_layer.layerType()
         properties = symbol_layer.properties()
 
-        if type == 'SimpleMarker' or type == 'SimpleFill':
+        if layer_type == 'SimpleMarker' or layer_type == 'SimpleFill':
             legend.set('BackColor', utils.rgba2argb(properties['color']))
             legend.set('LineColor', utils.rgba2argb(properties['outline_color']))
             # FIXME:: Need to convert line width to pixels
             legend.set('Width', properties['outline_width'])
             legend.set('DashPattern', '')  # ??
 
-        elif type == 'SimpleLine':
+        elif layer_type == 'SimpleLine':
             legend.set('LineColor', utils.rgba2argb(properties['line_color']))
             # FIXME:: Need to convert line width to pixels
             legend.set('Width', properties['line_width'])
             legend.set('DashPattern', '')  # ??
 
-        elif type == 'ImageFill':
+        elif layer_type == 'ImageFill':
             legend.set('ImagePath', properties['imageFile'])
             legend.set('ImageScale', '1')
             pass
-
         else:
             print "Not possible to render the symbol properly a default was used instead"
 
@@ -140,7 +146,7 @@ def set_break(legend, value_break):
     """
     Create legend's breaks to represent categories or ranges
 
-    :type width: object
+    :param value_break: range or category object
     """
     symbol_layer = value_break.symbol().symbolLayers()[0]
     type = symbol_layer.layerType()
@@ -159,6 +165,9 @@ def set_break(legend, value_break):
         line_color = utils.rgba2argb(properties['line_color'])
         line_width = properties['line_width']
     else:
+        color = utils.random_color()
+        line_color = '255,0,0,0'
+        line_width = '1'
         print "Not possible to render the symbol properly a default was used instead"
 
     legend_break.set('EndColor', color)
@@ -167,7 +176,7 @@ def set_break(legend, value_break):
     legend_break.set('OutlineStartColor', line_color)
 
     # Check if value_break has a single value or a lower and upper one
-    # This is the only diference betweem ranges and categories
+    # This is the only difference between ranges and categories
     try:
         legend_break.set('StartText', "{:.9f}".format(value_break.lowerValue()))
         legend_break.set('EndText', "{:.9f}".format(value_break.upperValue()))
@@ -182,7 +191,6 @@ def set_break(legend, value_break):
     legend_break.set('Rotulo', value_break.label())
     legend_break.set('Imagem', '')
     legend_break.set('Width', str(line_width))
-
 
 
 def set_label(label_layer, layer_name, lab_set):
@@ -265,84 +273,3 @@ def get_layer_filter(layer):
     else:
         # FIXME:: Must remake substring to the gison3dmap syntax
         return subset_string
-
-
-if __name__ == '__main__':
-    # Creates the XML structure to store layer symbols and labels
-    layer_legend = ET.Element('LayerLegend')
-
-    # Creates LayerLegend's child to store symbols
-    vector_layer_legend = ET.SubElement(layer_legend, 'VectorLayerLegend')
-    legend = ET.SubElement(vector_layer_legend, 'Legend')
-
-    legend.set('BackColor', '')
-    legend.set('LineColor', '')
-    legend.set('Width', '')
-    legend.set('ImagePath', '')
-    legend.set('ImageScale', '')
-    legend.set('EnableHatch', '')
-    legend.set('Hatch', '')
-    legend.set('FieldName', '')
-    legend.set('DashPattern', '')
-    legend.set('CampoRotacao', '')
-    legend.set('CorSel', '')
-
-    # Create legend's child to represent categories or ranges if necessary
-    # FIXME::this only applyes to category and classes symbols
-    # FIXME::This will need to Loop
-    legend_break = ET.SubElement(legend, 'Break')
-    legend_break.set('EndColor', '')
-    legend_break.set('StartColor', '')
-    legend_break.set('OutlineEndColor', '')
-    legend_break.set('OutlineStartColor', '')
-    legend_break.set('StartText', '')
-    legend_break.set('EndText', '')
-    legend_break.set('Rotulo', '')
-    legend_break.set('Imagem', '')
-    legend_break.set('Width', '')
-
-    legend_break = ET.SubElement(legend, 'Break')
-    legend_break.set('EndColor', '111')
-    legend_break.set('StartColor', '')
-    legend_break.set('OutlineEndColor', '')
-    legend_break.set('OutlineStartColor', '')
-    legend_break.set('StartText', '')
-    legend_break.set('EndText', '')
-    legend_break.set('Rotulo', '')
-    legend_break.set('Imagem', '')
-    legend_break.set('Width', '')
-
-    # Creates LayerLegend's child to store labels
-    label_layer = ET.SubElement(layer_legend, 'LabelLayer')
-    label_layer.set('Nome', '')
-    label_layer.set('ColunaText', '')
-    label_layer.set('ExpressaoRotulo', '')
-    label_layer.set('ColunaRotacao', '')
-    label_layer.set('Prioridade', '')
-    label_layer.set('CollisionDetectio', '')
-    label_layer.set('Cor', '')
-    label_layer.set('Activo', '')
-    label_layer.set('ExpressaoActiva', '')
-    label_layer.set('MaxRotuloVisible', '')
-    label_layer.set('MinRotuloVisible', '')
-    label_layer.set('CollisionBufferW', '')
-    label_layer.set('CollisionBufferH', '')
-
-    cor_fundo = ET.SubElement(label_layer, 'CorFundo')
-    cor_fundo.set('Cor', '')
-
-    offset = ET.SubElement(label_layer, 'Offset')
-    offset.set('OffsetX', '0')
-    offset.set('OffsetY', '0')
-
-    fonte = ET.SubElement(label_layer, 'Fonte')
-    fonte.set('Tamanho', '')
-    fonte.set('Nome', '')
-    fonte.set('StrickOut', 'False')
-    fonte.set('Underline', 'False')
-    fonte.set('Bold', 'False')
-    fonte.set('Italic', 'False')
-
-    string = ET.tostring(layer_legend, pretty_print=False, xml_declaration=True, encoding='utf 8')
-    string = string.replace('\n', '')
-    print string
