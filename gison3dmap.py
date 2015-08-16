@@ -227,29 +227,22 @@ class gison3dmap:
         layer = map_canvas.currentLayer()
 
         #FIXME:: Make Button inactive if not layer and remove that test from here
-        if layer and layer.type() == layer.VectorLayer:
-            layer_legend = get_layer_legend(layer)
+        if layer:
             commands = list()
             commands.append('CLEAN')
-            if layer_legend:
-                commands.append('DEFINELAYER ' + define_layer(layer))
-                commands.append('LEGEND ' + layer_legend)
+            commands.append('DEFINELAYER ' + define_layer(layer))
+
+            if layer.type() == layer.VectorLayer:
+                commands.append('LEGEND ' + get_layer_legend(layer))
                 commands.append('LAYERSQL ' + get_layer_filter(layer))
-                # LAYERSQL --> Função
-                commands.append('DRAW')
-                # Send list of messages to controller --> function
-                for command in commands:
-                    print command
-            else:
-                    # FIXME::Put this in message
-                    print "This QGIS symbol renderer is not supported by gison3dmap"
-        elif layer and layer.type() == layer.RasterLayer:
-            pass
-            # CLEAR
-            # DEFINE GRID --> Função
-            # GRID -- Função
-            # DRAW
-            # Send list of messages to controller
+            elif layer.type() == layer.RasterLayer:
+                commands.append('GRID ' + layer.name())
+
+            commands.append('DRAW')
+
+            # Send list of messages to controller --> function
+            for command in commands:
+                print command
         else:
             print "Please select a Vector or Raster Layer" #FIXME Use a warning message for this
 

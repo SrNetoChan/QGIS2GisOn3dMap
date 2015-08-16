@@ -245,10 +245,16 @@ def set_label(label_layer, layer_name, lab_set):
 def define_layer(layer):
     layer_name = layer.name()
     provider = layer.dataProvider()
-    provider_type = provider.storageType()
     source = re.sub(r'(.*)\|layerid=\d+', r'\1', provider.dataSourceUri())
+    # If layer is vectorlayer get storage type
+    if isinstance(provider, QgsVectorLayer):
+        provider_type = provider.storageType()
+        result = layer_name + ',' + provider_type + ',' + source
+    else:
+        result = layer_name + ',' + source
+
     # FIXME:: Must remake provider_type gison3map syntax
-    return layer_name + ',' + provider_type + ',' + source
+    return result
 
 
 def get_layer_filter(layer):
