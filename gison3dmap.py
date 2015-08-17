@@ -28,6 +28,7 @@ import resources_rc
 from gison3dmap_dialog import gison3dmapDialog
 import os.path, sys
 from tools.layersxml import get_layer_legend, define_layer, get_layer_filter
+from tools import tocontroller
 
 
 class gison3dmap:
@@ -241,8 +242,7 @@ class gison3dmap:
             commands.append('DRAW')
 
             # Send list of messages to controller --> function
-            for command in commands:
-                print command
+            tocontroller.send_messages(commands,('192.168.56.101',9991)) #TODO::get ip from configuration
         else:
             print "Please select a Vector or Raster Layer" #FIXME Use a warning message for this
 
