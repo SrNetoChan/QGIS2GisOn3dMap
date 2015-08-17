@@ -52,6 +52,7 @@ def random_color():
     return color
 
 #testing
-print rgba2argb('101,102,103,127')
-print mm2px('0.10')
-print random_color()
+if __name__ == '__main__':
+    print rgba2argb('101,102,103,127')
+    print mm2px('0.10')
+    print random_color()

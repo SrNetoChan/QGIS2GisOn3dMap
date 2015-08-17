@@ -81,7 +81,7 @@ def get_layer_legend(layer):
         else:
             print "This renderer is not supported by gison3dmap"
 
-        if layer.labelsEnabled():
+        if layer.hasLabelsEnabled(): #FIXME:: this is depreaced need to update for 2.10 labelsEnabled()
             label_layer = ET.SubElement(layer_legend, 'LabelLayer')
             label_settings = QgsPalLayerSettings.fromLayer(layer)
             set_label(label_layer, layer.name(), label_settings)

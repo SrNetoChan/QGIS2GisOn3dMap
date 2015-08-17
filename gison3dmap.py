@@ -231,25 +231,63 @@ class gison3dmap:
         if layer:
             commands = list()
             commands.append('CLEAN')
-            commands.append('DEFINELAYER ' + define_layer(layer))
 
-            if layer.type() == layer.VectorLayer:
+            # Try to get the legend form layer
+            layer_legend = get_layer_legend(layer)
+
+            if layer.type() == layer.VectorLayer and layer_legend:
+                commands.append('DEFINELAYER ' + define_layer(layer))
                 commands.append('LEGEND ' + get_layer_legend(layer))
                 commands.append('LAYERSQL ' + get_layer_filter(layer))
+
             elif layer.type() == layer.RasterLayer:
+                commands.append('DEFINELAYER ' + define_layer(layer))
                 commands.append('GRID ' + layer.name())
 
             commands.append('DRAW')
 
             # Send list of messages to controller --> function
-            tocontroller.send_messages(commands,('192.168.56.101',9991)) #TODO::get ip from configuration
+            # tocontroller.send_messages(commands,('192.168.56.101',9991)) #TODO::get ip from configuration
+            if len(commands)>2:
+                for command in commands:
+                    print command
+            else:
+                print "Invalid renderer for layer : ", layer.name()
         else:
             print "Please select a Vector or Raster Layer" #FIXME Use a warning message for this
 
 
     def sendMap(self):
         """Function to send all visible layers to gison3dmap"""
-        pass
+        map_canvas = self.iface.mapCanvas()
+        visible_layers = map_canvas.layers()
+        commands = list()
+        commands.append('CLEAN')
+        for layer in visible_layers:
+            layer_legend = get_layer_legend(layer)
+
+            if layer.type() == layer.VectorLayer and layer_legend:
+                commands.append('DEFINELAYER ' + define_layer(layer))
+                commands.append('LEGEND ' + layer_legend)
+                commands.append('LAYERSQL ' + get_layer_filter(layer))
+
+            elif layer.type() == layer.RasterLayer:
+                commands.append('DEFINELAYER ' + define_layer(layer))
+                commands.append('GRID ' + layer.name())
+
+            else:
+                print "Could not project layer: ", layer.name()
+
+        commands.append('DRAW')
+
+        # Check if list of commands are more that just CLEAN and DRAW and a DEFINE LAYER
+        # Meaning that there are no valid layers to project
+        if len(commands)>2:
+            for command in commands:
+                print command
+        else:
+            print "No valid layers to print"
+
 
     def clean(self):
         """Function to clean all layers from gison3dmap"""
