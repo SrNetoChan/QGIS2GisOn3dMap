@@ -290,8 +290,13 @@ class gison3dmap:
 
 
     def clean(self):
-        """Function to clean all layers from gison3dmap"""
-        pass
+        """
+        Function to clean all layers from gison3dmap
+        """
+
+        commands = ['CLEAN']
+        print commands[0]
+        #tocontroller.send_messages(commands,('192.168.56.101',9991)) # FIXME:: get ip_port from configuration file
 
     def sendCommands(self):
         """Function to send single commands to gison3dmap"""
