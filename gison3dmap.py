@@ -165,32 +165,32 @@ class gison3dmap:
         icon_path = ':/plugins/gison3dmap/icon.png'
         # FIXME: Get new icons for buttons
         self.add_action(
-            icon_path,
+            ':/plugins/gison3dmap/icons/cmdAddSelection.png',
             text=self.tr(u'Seleção'),
             callback=self.sendSelection,
             parent=self.iface.mainWindow())
         self.add_action(
-            icon_path,
+            ':/plugins/gison3dmap/icons/cmdAddLayer.png',
             text=self.tr(u'Camada'),
             callback=self.sendLayer,
             parent=self.iface.mainWindow())
         self.add_action(
-            icon_path,
+            ':/plugins/gison3dmap/icons/cmdAllLayers.png',
             text=self.tr(u'Mapa'),
             callback=self.sendMap,
             parent=self.iface.mainWindow())
         self.add_action(
-            icon_path,
+            ':/plugins/gison3dmap/icons/cmdClear.png',
             text=self.tr(u'Limpar'),
             callback=self.clean,
             parent=self.iface.mainWindow())
         self.add_action(
-            icon_path,
+            ':/plugins/gison3dmap/icons/cmdComando.png',
             text=self.tr(u'Enviar comandos'),
             callback=self.sendCommands,
             parent=self.iface.mainWindow())
         self.add_action(
-            icon_path,
+            ':/plugins/gison3dmap/icons/cmdConfig.png',
             text=self.tr(u'Configuração'),
             callback=self.configuration,
             parent=self.iface.mainWindow())

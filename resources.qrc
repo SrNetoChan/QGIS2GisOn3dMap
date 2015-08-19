@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/plugins/gison3dmap" >
         <file>icon.png</file>
+        <file>icons/cmdAddLayer.png</file>
+        <file>icons/cmdAddSelection.png</file>
+        <file>icons/cmdClear.png</file>
+        <file>icons/cmdAllLayers.png</file>
+        <file>icons/cmdConfig.png</file>
+        <file>icons/cmdComando.png</file>
     </qresource>
 </RCC>
