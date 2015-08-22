@@ -7,5 +7,6 @@
         <file>icons/cmdAllLayers.png</file>
         <file>icons/cmdConfig.png</file>
         <file>icons/cmdComando.png</file>
+        <file>icons/logo_gison3dmap.jpg</file>
     </qresource>
 </RCC>

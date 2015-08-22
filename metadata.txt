@@ -28,7 +28,7 @@ homepage=
 tracker=
 repository=
 category=Plugins
-icon=icon.png
+icon=icons/logo_gison3dmap.jpg
 # experimental flag
 experimental=True
 
