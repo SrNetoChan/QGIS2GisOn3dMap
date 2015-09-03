@@ -300,7 +300,15 @@ class gison3dmap:
 
     def sendCommands(self):
         """Function to send single commands to gison3dmap"""
-        pass
+        # show the dialog
+        self.dlg.show()
+        # Run the dialog event loop
+        # result = self.dlg.exec_()
+        # See if OK was pressed
+        if self.dlg.exec_():
+            command = self.dlg.comboBox.currentText() #FIXME:: send commands to controller
+            print command
+            pass
 
     def configuration(self):
         """Function to send single commands to gison3dmap"""

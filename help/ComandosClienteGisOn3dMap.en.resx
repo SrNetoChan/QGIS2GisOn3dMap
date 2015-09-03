@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="metadata">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" />
+							</xsd:sequence>
+							<xsd:attribute name="name" use="required" type="xsd:string" />
+							<xsd:attribute name="type" type="xsd:string" />
+							<xsd:attribute name="mimetype" type="xsd:string" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="assembly">
+						<xsd:complexType>
+							<xsd:attribute name="alias" type="xsd:string" />
+							<xsd:attribute name="name" type="xsd:string" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="Clear_help" xml:space="preserve">
+    <value>Clears the map buffer (DRAW required to clear the projection)</value>
+  </data>
+	<data name="Clear_parameters" xml:space="preserve">
+    <value>CLEAR</value>
+  </data>
+	<data name="Renderer_help" xml:space="preserve">
+		<value>To define the render symbol to use</value>
+	</data>
+	<data name="Renderer_parameters" xml:space="preserve">
+		<value>RENDERER 1..6</value>
+	</data>
+	<data name="RGBOUT_help" xml:space="preserve">
+		<value>To define the RGB color of the RENDERER symbol outline</value>
+	</data>
+	<data name="RGBOUT_Parameters" xml:space="preserve">
+		<value>RGBOUT Red value, Green value, Blue value</value>
+	</data>
+	<data name="WKT_help" xml:space="preserve">
+		<value>Sends a WKT string for drawing</value>
+	</data>
+	<data name="WKT_Parameters" xml:space="preserve">
+		<value>WKT POINT (x y)\nWKT MULTIPOINT (x1 y1, … xn yn)\nWKT MULTILINESTRING ((x1  y1, x2  y2, ... , xn yn) (x1 y1, x2 y2, … ,xn yn ))\nWKT MULTIPOLYGON (((x1  y1, x2  y2, ... , xn yn) (x1 y1, x2 y2, … ,xn yn ))</value>
+	</data>
+	<data name="RGB_Help" xml:space="preserve">
+		<value>To define the  RGB color of the RENDERER symbol  background</value>
+	</data>
+	<data name="RGB_Parameters" xml:space="preserve">
+		<value>RGB Red value, Green value, Blue value</value>
+	</data>
+	<data name="DRAW_TRANSITION_Help" xml:space="preserve">
+		<value>Draws the map with a transition effect. If "number_of_frames" is zero, then the "time_frame" will be the total transition time</value>
+	</data>
+	<data name="DRAW_TRANSITION_Parameters" xml:space="preserve">
+		<value>DRAW_TRANSITION FADE  number of frames, time frame \nDRAW_TRANSITION FADE_IN  number of frames, time frame</value>
+	</data>
+	<data name="WAIT_Help" xml:space="preserve">
+		<value>Forces a waiting time (in miliseconds) </value>
+	</data>
+	<data name="WAIT_Parameters" xml:space="preserve">
+		<value>WAIT time</value>
+	</data>
+	<data name="DEFINELAYER_Help" xml:space="preserve">
+		<value>Defines a link to a geographic data feature class </value>
+	</data>
+	<data name="DEFINELAYER_Parameters" xml:space="preserve">
+		<value>DEFINELAYER layer name, SHP, shapefile\nDEFINELAYER layer name, POINT|LINE|POLY, database connection string</value>
+	</data>
+	<data name="LAYERID_Help" xml:space="preserve">
+		<value>Draws one or more features from a layer, selected using the corresponding feature Ids</value>
+	</data>
+	<data name="LAYERID_Parameters" xml:space="preserve">
+		<value>LAYERID  layer name, Id\n", LAYERID layer name, Id 1,...,Id n</value>
+	</data>
+	<data name="LAYERSQL_Help" xml:space="preserve">
+		<value>Draws one or more features from a layer, selected using a selection query</value>
+	</data>
+	<data name="LAYERSQL_Parameters" xml:space="preserve">
+		<value>LAYERSQL layer name, selection query</value>
+	</data>
+	<data name="SENDFILE_Help" xml:space="preserve">
+		<value>Sends for execution, one at a time, the commands inside a text file</value>
+	</data>
+	<data name="SENDFILE_Parameters" xml:space="preserve">
+		<value>SendFile text file</value>
+	</data>
+	<data name="LEGEND_Help" xml:space="preserve">
+		<value>Defines the drawing legend to apply, using a XML string</value>
+	</data>
+	<data name="LEGENDFILE_help" xml:space="preserve">
+		<value>Defines as the drawing legend to apply, the content of a .xml legend file</value>
+	</data>
+	<data name="LEGENDFILE_Parameters" xml:space="preserve">
+		<value>LEGENDFILE XML file</value>
+	</data>
+	<data name="DEFINEGRID_Help" xml:space="preserve">
+		<value>Defines a link to a raster file (image or grid)</value>
+	</data>
+	<data name="DEFINEGRID_Parameters" xml:space="preserve">
+		<value>DEFINEGRID raster file</value>
+	</data>
+	<data name="GRID_Help" xml:space="preserve">
+		<value>Draws a raster file (image or grid)</value>
+	</data>
+	<data name="GRID_Parameters" xml:space="preserve">
+		<value>GRID raster file</value>
+	</data>
+	<data name="EXECUTE_Help" xml:space="preserve">
+		<value>Send to the server a request to execute a commands text file</value>
+	</data>
+	<data name="EXECUTE_Parameters" xml:space="preserve">
+		<value>EXECUTE text file</value>
+	</data>
+	<data name="LIGHT_Help" xml:space="preserve">
+		<value>Switches the lifgt effect for a given solar height and azimuth, or swithes it off</value>
+	</data>
+	<data name="LIGHT_Parameters" xml:space="preserve">
+		<value>LIGHT true|1, solar azimuth. solar height\nLIGHT false|0</value>
+	</data>
+	<data name="VIDEO_Help" xml:space="preserve">
+		<value>Runs a video on a system multimedia display</value>
+	</data>
+	<data name="VIDEO_Parameters" xml:space="preserve">
+		<value>VIDEO host, display ID, OPEN, video file\nVIDEO host, display ID, PLAY|PAUSE|STOP|CLOSE\nVIDEO host, display ID, VOLUME, value\nVIDEO host, display ID, ONEND, CLEAR|REPEAT image or video file</value>
+	</data>
+	<data name="IMAGE_Help" xml:space="preserve">
+		<value>Shows an image in a multimedia display </value>
+	</data>
+	<data name="IMAGE_Parameters" xml:space="preserve">
+		<value>IMAGE hostname, display ID, OPEN, image file\nIMAGE host, display ID, CLOSE</value>
+	</data>
+	<data name="LEGEND_Parameters" xml:space="preserve">
+		<value>LEGEND XML string</value>
+	</data>
+</root>
