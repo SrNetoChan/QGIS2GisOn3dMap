@@ -254,12 +254,13 @@ def define_layer(layer):
     layer_name = layer.name()
     provider = layer.dataProvider()
     source = re.sub(r'(.*)\|layerid=\d+', r'\1', provider.dataSourceUri())
+
     # If layer is vectorlayer get storage type
     if isinstance(provider, QgsVectorLayer):
         provider_type = provider.storageType()
         result = layer_name + ',' + provider_type + ',' + source
     else:
-        result = layer_name + ',' + source
+        result = layer_name + ',SHP,' + source
 
     # FIXME:: Must remake provider_type gison3map syntax
     return result
@@ -269,7 +270,7 @@ def get_layer_filter(layer):
     provider = layer.dataProvider()
     subset_string = provider.subsetString()
     if len(subset_string) == 0:
-        return '1=1'
+        return ',1=1'
     else:
         # FIXME:: Must remake substring to the gison3dmap syntax
         return subset_string
