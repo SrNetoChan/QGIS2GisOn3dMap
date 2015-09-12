@@ -231,6 +231,7 @@ class gison3dmap:
             if layer_legend:
                 # Get IDs from selected Features
                 ids = layer.selectedFeaturesIds()
+                ids = [id + 1 for id in ids]
                 #convert the list to a string to use in LAYERID command
                 ids_str = ",".join(map(str,ids))
 
@@ -306,7 +307,7 @@ class gison3dmap:
             if layer.type() == layer.VectorLayer and layer_legend:
                 commands.append('DEFINELAYER ' + define_layer(layer))
                 commands.append('LEGEND ' + layer_legend)
-                commands.append('LAYERSQL ' + get_layer_filter(layer))
+                commands.append('LAYERSQL ' + layer.name() + get_layer_filter(layer))
 
             elif layer.type() == layer.RasterLayer:
                 commands.append('DEFINELAYER ' + define_layer(layer))
