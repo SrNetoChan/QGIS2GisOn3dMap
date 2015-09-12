@@ -18,6 +18,9 @@ def rgba2argb(rgba):
     # Remove alpha values of the end of the list and append it in the beginning
     alpha = band_values.pop()
     band_values.insert(0,alpha)
+    # Check is Transparencies are allowed, if not, set alpha value to no transparency
+    if not config.shared.transparencia:
+        band_values[0] = "255"
     # Convert list back to comma separated string
     argb = ",".join(band_values)
     return argb
