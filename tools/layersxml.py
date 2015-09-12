@@ -55,13 +55,6 @@ def get_layer_legend(layer):
             symbol_layer = renderer.symbol().symbolLayers()[0]  # only considers first layer of symbol
             set_legend(legend, symbol_layer)
 
-        # elif renderer.type() == 'categorizedSymbol':
-        #     set_legend(legend)
-        #     categories = renderer.categories()
-        #     for category in categories:
-        #         symbol_layer = category.symbol().symbolLayers()[0].properties()
-        #         set_break(legend, symbol_layer)
-
         elif renderer.type() in ('graduatedSymbol', 'categorizedSymbol' ):
             set_legend(legend)
             legend.set('FieldName', renderer.classAttribute())

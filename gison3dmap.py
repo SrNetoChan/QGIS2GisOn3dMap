@@ -27,9 +27,9 @@ import resources_rc
 # Import the code for the dialog
 from gison3dmap_dialog import gison3dmapDialog
 from config_dialog import configDialog
-import os.path, sys
+import os.path, sys, re
 from tools.layersxml import get_layer_legend, define_layer, get_layer_filter
-from tools import tocontroller
+from tools import tocontroller, utils
 import tools.config as config
 
 
@@ -216,6 +216,43 @@ class gison3dmap:
 
     def sendSelection(self):
         """Function to send selected features on the active layer to gison3dmap"""
+        map_canvas = self.iface.mapCanvas()
+        layer = map_canvas.currentLayer()
+
+        if layer.type() == layer.VectorLayer and layer.selectedFeatureCount()>0:
+            commands = list()
+
+            if self.cfg.clear_before_draw_map:
+                commands.append('CLEAR')
+
+            # Try to get the legend form layer
+            layer_legend = get_layer_legend(layer)
+
+            if layer_legend:
+                # Get IDs from selected Features
+                ids = layer.selectedFeaturesIds()
+                #convert the list to a string to use in LAYERID command
+                ids_str = ",".join(map(str,ids))
+
+                # Replace all colors in legend by project selection color
+                qcolor = map_canvas.mapSettings().selectionColor()
+                s_color = ",".join(map(str,qcolor.getRgb()))
+                s_color = utils.rgba2argb(s_color)
+                layer_legend = re.sub(r'\d{1,3},\d{1,3},\d{1,3},\d{1,3}', s_color, layer_legend)
+
+                commands.append('DEFINELAYER ' + define_layer(layer))
+                commands.append('LEGEND ' + layer_legend)
+                commands.append('LAYERID ' + layer.name() + "," + ids_str)
+
+            commands.append('DRAW')
+
+            if len(commands)>2:
+                tocontroller.send_messages(commands, self.ip_port)
+            else:
+                print "Invalid renderer for layer : ", layer.name()
+        else:
+            print "Please select a Vector or Raster Layer" #FIXME Use a warning message for this
+
         pass
 
     def sendLayer(self):
@@ -235,7 +272,7 @@ class gison3dmap:
 
             if layer.type() == layer.VectorLayer and layer_legend:
                 commands.append('DEFINELAYER ' + define_layer(layer))
-                commands.append('LEGEND ' + get_layer_legend(layer))
+                commands.append('LEGEND ' + layer_legend)
                 commands.append('LAYERSQL ' + layer.name() + get_layer_filter(layer))
 
             elif layer.type() == layer.RasterLayer:
