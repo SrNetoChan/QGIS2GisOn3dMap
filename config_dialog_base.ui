@@ -48,7 +48,7 @@
       <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="title">
-      <string>Command Logging</string>
+      <string>Registo de Comandos</string>
      </property>
      <property name="flat">
       <bool>false</bool>
@@ -60,7 +60,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Log folder</string>
+         <string>Pasta de registo</string>
         </property>
        </widget>
       </item>
@@ -70,14 +70,14 @@
       <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="log">
         <property name="text">
-         <string>Log commands</string>
+         <string>Registar comandos</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0" colspan="2">
        <widget class="QCheckBox" name="log_erros">
         <property name="text">
-         <string>Log commands answers</string>
+         <string>Registar respostas</string>
         </property>
        </widget>
       </item>
@@ -87,10 +87,10 @@
    <item row="5" column="1">
     <widget class="QLineEdit" name="host_multimedia"/>
    </item>
-   <item row="2" column="0">
+   <item row="2" column="0" colspan="3">
     <widget class="QCheckBox" name="clear_before_draw_map">
      <property name="text">
-      <string>Send CLEAR before Send Map</string>
+      <string>Emitir um CLEAR antes de enviar mapa</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -113,21 +113,21 @@
    <item row="3" column="0">
     <widget class="QCheckBox" name="transparencia">
      <property name="text">
-      <string>Use transparencies</string>
+      <string>Usar transparências</string>
      </property>
     </widget>
    </item>
    <item row="5" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Multimedia display host and ID</string>
+      <string>Display multimédia host e ID</string>
      </property>
     </widget>
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Symbols scaling</string>
+      <string>Escala dos símbolos</string>
      </property>
     </widget>
    </item>
@@ -142,7 +142,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Controller</string>
+        <string>Controlador</string>
        </property>
       </widget>
      </item>

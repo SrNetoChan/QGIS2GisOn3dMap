@@ -34,7 +34,7 @@ class config:
         self.log = s.value("gison3dmap/Log",False) == 'true'
         self.log_erros = s.value("gison3dmap/LogErros",False) == 'true'
         self.transparencia = s.value("gison3dmap/Transparencia",False) == 'true'
-        self.symbol_scale = s.value("gison3dmap/SymbolScale",1)
+        self.symbol_scale = float(s.value("gison3dmap/SymbolScale",1))
         self.clear_before_draw_map = s.value("gison3dmap/ClearBeforeDrawMap",True) == 'true'
         self.display_multimedia = s.value("gison3dmap/DisplayMultimedia","dword:00000000")
         self.host_multimedia = s.value("gison3dmap/HostMultimedia","localhost")

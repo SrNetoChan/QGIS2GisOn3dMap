@@ -102,14 +102,12 @@ def set_legend(legend, symbol_layer=None):
     Function to fill legend attributes with values from the symbolLayer
     """
     # Set default values for the case that layer_symbol arguments is not undeclared
-    legend.set('BackColor', '')
-    legend.set('LineColor', '')
-    # FIXME:: Need to convert line width to pixels
-    legend.set('Width', '')
+    legend.set('BackColor', utils.random_color())
+    legend.set('LineColor', utils.random_color())
+    legend.set('Width', '2')
     legend.set('ImagePath', '')
     legend.set('ImageScale', '1')
     legend.set('EnableHatch', 'False')
-    # FIXME:: need to convert QGIS strings to similar Hatch
     legend.set('Hatch', '0')
     legend.set('FieldName', '')
     legend.set('DashPattern', '')  # ??
@@ -125,13 +123,13 @@ def set_legend(legend, symbol_layer=None):
             legend.set('BackColor', utils.rgba2argb(properties['color']))
             legend.set('LineColor', utils.rgba2argb(properties['outline_color']))
             # FIXME:: Need to convert line width to pixels
-            legend.set('Width', properties['outline_width'])
+            legend.set('Width', utils.mm2px(properties['outline_width']))
             legend.set('DashPattern', '')  # ??
 
         elif layer_type == 'SimpleLine':
             legend.set('LineColor', utils.rgba2argb(properties['line_color']))
             # FIXME:: Need to convert line width to pixels
-            legend.set('Width', properties['line_width'])
+            legend.set('Width', utils.mm2px(properties['line_width']))
             legend.set('DashPattern', '')  # ??
 
         elif layer_type == 'ImageFill':
@@ -190,7 +188,7 @@ def set_break(legend, value_break):
         legend_break.set('EndText', value)
     legend_break.set('Rotulo', value_break.label())
     legend_break.set('Imagem', '')
-    legend_break.set('Width', str(line_width))
+    legend_break.set('Width', str(utils.mm2px(line_width)))
 
 
 def set_label(label_layer, layer_name, lab_set):

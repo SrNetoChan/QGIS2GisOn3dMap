@@ -1,4 +1,5 @@
 import random
+import config
 
 
 def rgba2argb(rgba):
@@ -24,15 +25,18 @@ def rgba2argb(rgba):
 
 def mm2px(mm_value):
     """
-    Function to convert units form milimiter to pixels
+    Function to convert units from milimiter to pixels
+    Uses configuration settings Scale Symbols to scale the values
 
-    :param mm_value: value in milimeter (integer)
+    :param mm_value: value in milimeter (Double)
     :type mm_value: string
     :returns: Float value in pixels (Float)
     :rtype: string
     """
-    FACTOR = 3.0 # FIXME:: review this values, it may depend of the resolution
-    px_value = str(int(float(mm_value) * FACTOR + 0.5))
+
+    # Assuming 72 resolution, means that 1 mm = 2.85 pixels
+    FACTOR = 2.85
+    px_value = str(int(int(float(mm_value) * FACTOR + 0.5) * config.shared.symbol_scale))
 
     return px_value
 
@@ -49,10 +53,11 @@ def random_color():
     for i in range(1,4):
         # start at 100 to return bright colors
         color[i] = str(random.randint(100,255))
+    color = ",".join(color)
     return color
 
 #testing
 if __name__ == '__main__':
     print rgba2argb('101,102,103,127')
-    print mm2px('0.10')
+    print mm2px('0.54')
     print random_color()

@@ -22,12 +22,8 @@
 """
 
 import socket
-import config
 
-# Get shared instance with configuration settings
-cfg = config.shared
-
-def send_messages(messages=[], ip_port=(cfg.controller,9991)):
+def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
     """
     messages is a list of strings
     ip_port is a tupple composed by string (ip) and a integer (port)
@@ -39,23 +35,23 @@ def send_messages(messages=[], ip_port=(cfg.controller,9991)):
     # print messages
     for message in messages:
         s.send(message+'\n')
-        # print 'Sent command: ', message #
+        print 'CMD: ', message
     s.close()
     return None
 
 # Tests
 if __name__ == '__main__':
 
-    TCP_IP = cfg.controller
+    TCP_IP = "192.168.1.69"
     TCP_PORT = 9991
-    BUFFER_SIZE = 1024
-    MESSAGE = "CLEAN"
+    BUFFER_SIZE = 256
+    MESSAGE = "DRAW"
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((TCP_IP, TCP_PORT))
     s.send(MESSAGE)
 
-    #data = s.recv(BUFFER_SIZE)
+    data = s.recv(BUFFER_SIZE)
+    print "received data:", data
     s.close()
 
-    #print "received data:", data

@@ -226,7 +226,9 @@ class gison3dmap:
         #FIXME:: Make Button inactive if not layer and remove that test from here
         if layer:
             commands = list()
-            commands.append('CLEAN')
+
+            if self.cfg.clear_before_draw_map:
+                commands.append('CLEAR')
 
             # Try to get the legend form layer
             layer_legend = get_layer_legend(layer)
@@ -243,10 +245,9 @@ class gison3dmap:
             commands.append('DRAW')
 
             # Send list of messages to controller --> function
-            tocontroller.send_messages(commands, self.ip_port)
+
             if len(commands)>2:
-                for command in commands:
-                    print command
+                tocontroller.send_messages(commands, self.ip_port)
             else:
                 print "Invalid renderer for layer : ", layer.name()
         else:
@@ -258,7 +259,10 @@ class gison3dmap:
         map_canvas = self.iface.mapCanvas()
         visible_layers = map_canvas.layers()
         commands = list()
-        commands.append('CLEAN')
+
+        if self.cfg.clear_before_draw_map:
+            commands.append('CLEAR')
+
         for layer in visible_layers:
             layer_legend = get_layer_legend(layer)
 
@@ -276,22 +280,19 @@ class gison3dmap:
 
         commands.append('DRAW')
 
-        # Check if list of commands are more that just CLEAN and DRAW and a DEFINE LAYER
+        # Check if list of commands are more that just CLEAR and DRAW and a DEFINE LAYER
         # Meaning that there are no valid layers to project
         if len(commands)>2:
             tocontroller.send_messages(commands, self.ip_port)
-            for command in commands:
-                print command
         else:
             print "No valid layers to print"
 
     def clear(self):
         """
-        Function to clean all layers from gison3dmap
+        Function to clear all layers from gison3dmap
         """
 
         commands = ['CLEAR','DRAW']
-        print commands[0]
         tocontroller.send_messages(commands, self.ip_port)
 
     def sendCommands(self):
@@ -305,7 +306,6 @@ class gison3dmap:
             command = self.send_commands_dlg.comboBox.currentText()
             commands = [command]
             tocontroller.send_messages(commands, self.ip_port)
-            print command #FIXME:: send commands to controller
 
     def configuration(self):
         """Function to execute configuration dialog"""
