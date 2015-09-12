@@ -30,6 +30,7 @@ from config_dialog import configDialog
 import os.path, sys
 from tools.layersxml import get_layer_legend, define_layer, get_layer_filter
 from tools import tocontroller
+import tools.config as config
 
 
 class gison3dmap:
@@ -72,21 +73,11 @@ class gison3dmap:
         self.toolbar = self.iface.addToolBar(u'gison3dmap')
         self.toolbar.setObjectName(u'gison3dmap')
 
-        # Read settings from System Registry
-        self.read_settings()
-        print self.num_drive_map
-        print self.controller
-        print self.log
-        print self.log_erros
-        print self.transparencia
-        print self.symbol_scale
-        print self.clear_antes_draw_map
-        print self.display_multimedia
-        print self.host_multimedia
-        print self.log_path
+        # Save reference from shared configuration instance
+        self.cfg = config.shared
 
         # Declare Constants FIXME:: Read it from settings
-        self.ip_port = (self.controller,9991)
+        self.ip_port = (self.cfg.controller,9991)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -223,46 +214,6 @@ class gison3dmap:
         # remove the toolbar
         del self.toolbar
 
-    def store_settings(self):
-        """
-        Saves plugin current user settings in System native way to store settings,
-        that is — registry (on Windows), .plist file (on Mac OS X) or .ini file (on Unix).
-        """
-        s = QSettings()
-
-        # s.setValue("gison3dmap/NumDriveMap", self.num_drive_map)
-        s.setValue("gison3dmap/Controller", self.controller)
-        # s.setValue("gison3dmap/Log", self.log)
-        # s.setValue("gison3dmap/LogErros", self.log_erros)
-        # s.setValue("gison3dmap/Transparencia", self.transparencia)
-        # s.setValue("gison3dmap/SymbolScale", self.symbol_scale)
-        # s.setValue("gison3dmap/ClearAntesDrawMap", self.clear_antes_draw_map)
-        # s.setValue("gison3dmap/DisplayMultimedia",self.display_multimedia)
-        # s.setValue("gison3dmap/HostMultimedia",  self.host_multimedia)
-        # s.setValue("gison3dmap/LogPath", self.log_path)
-
-
-    def read_settings(self):
-        """
-        Read plugin current user from settings in System native way to store settings,
-        that is — registry (on Windows), .plist file (on Mac OS X) or .ini file (on Unix).
-
-        If settings are not found, it uses default ones
-        """
-        s = QSettings()
-        self.num_drive_map = s.value("gison3dmap/NumDriveMap","0")
-        self.controller = s.value("gison3dmap/Controller","localhost")
-        self.log = s.value("gison3dmap/Log","False")
-        self.log_erros = s.value("gison3dmap/LogErros","False")
-        self.transparencia = s.value("gison3dmap/Transparencia","False")
-        self.symbol_scale =s.value("gison3dmap/SymbolScale","1")
-        self.clear_antes_draw_map = s.value("gison3dmap/ClearAntesDrawMap","True")
-        self.display_multimedia = s.value("gison3dmap/DisplayMultimedia","dword:00000000")
-        self.host_multimedia = s.value("gison3dmap/HostMultimedia","")
-        self.log_path = s.value("gison3dmap/LogPath","")
-
-    # gison3dmap tools
-
     def sendSelection(self):
         """Function to send selected features on the active layer to gison3dmap"""
         pass
@@ -358,39 +309,13 @@ class gison3dmap:
 
     def configuration(self):
         """Function to execute configuration dialog"""
-        # Update dialog values
+        # Update dialog values from settings
+        self.config_dlg.settingsToDialog()
         # show the dialog
         self.config_dlg.show()
         # Run the dialog event loop
         result = self.config_dlg.exec_()
-        # See if OK was pressed
+
+        # If OK was pressed save dialog values to settings
         if result:
-            # # Get new settings from dialog widget's values
-            # self.num_drive_map = "0"
-            self.controller = self.config_dlg.controller.text()
-            # self.log = self.config_dlg.log
-            # self.log_erros = self.config_dlg.log_erros
-            # self.transparencia = self.config_dlg.transparencia
-            # self.symbol_scale =self.config_dlg.symbol_scale
-            # self.clear_antes_draw_map = self.config_dlg.clear_antes_draw_map
-            # self.display_multimedia = "dword:00000000"
-            # self.host_multimedia = self.config_dlg.host_multimedia
-            # self.log_path = self.config_dlg.log_path
-            #
-            # # and Save settings to system
-            self.store_settings()
-            pass
-        else:
-            # return dialog widget's values to original state
-            # self.num_drive_map = "0"
-            self.config_dlg.controller.setText(self.controller)
-            # self.config_dlg.log = self.log
-            # self.config_dlg.log_erros = self.log_erros
-            # self.config_dlg.transparencia = self.transparencia
-            # self.config_dlg.symbol_scale = self.symbol_scale
-            # self.config_dlg.clear_antes_draw_map = self.clear_antes_draw_map
-            # self.config_dlg.display_multimedia = self.display_multimedia
-            # self.config_dlg.host_multimedia = self.host_multimedia
-            # self.config_dlg.log_path = self.log_path
-            pass
-        print self.controller
+            self.config_dlg.dialogToSettings()
