@@ -174,7 +174,7 @@ def set_break(legend, value_break, layer_alpha):
         print "Not possible to render the symbol properly a default was used instead"
 
     legend_break.set('EndColor', color)
-    legend_break.set('StartColor', line_color)
+    legend_break.set('StartColor', color)
     legend_break.set('OutlineEndColor', line_color)
     legend_break.set('OutlineStartColor', line_color)
 
