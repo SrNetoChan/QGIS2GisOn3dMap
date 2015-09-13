@@ -51,19 +51,26 @@ def get_layer_legend(layer):
         vector_layer_legend = ET.SubElement(layer_legend, 'VectorLayerLegend')
         legend = ET.SubElement(vector_layer_legend, 'Legend')
 
+        # Getting layer's transparency to further use in feature's colors
+        layer_alpha = 1.0 - layer.layerTransparency()/100.0
+
         if renderer.type() == 'singleSymbol':
-            symbol_layer = renderer.symbol().symbolLayers()[0]  # only considers first layer of symbol
-            set_legend(legend, symbol_layer)
+            symbol = renderer.symbol()
+            alpha_factor = symbol.alpha() * layer_alpha
+            symbol_layer = symbol.symbolLayers()[0]  # only considers first layer of symbol
+            set_legend(legend, alpha_factor, symbol_layer)
 
         elif renderer.type() in ('graduatedSymbol', 'categorizedSymbol' ):
-            set_legend(legend)
+            set_legend(legend, layer_alpha)
             legend.set('FieldName', renderer.classAttribute())
+
             if renderer.type() == 'categorizedSymbol':
                 value_breaks = renderer.categories()
             else:
                 value_breaks = renderer.ranges()
+
             for value_break in value_breaks:
-                set_break(legend, value_break)
+                set_break(legend, value_break, layer_alpha)
 
         # TODO: Add support to RuleRenderer
         # elif renderer.type() == 'RuleRenderer':
@@ -88,9 +95,7 @@ def get_layer_legend(layer):
         return xml_string
 
 
-def set_legend(legend, symbol_layer=None):
-    # backcolor='', linecolor='', width='', imagepath='', imagescale='1', enablehatch='False',
-    # hatch='0', fieldname='', dashpattern='', camporotacao='', corset='255,255,255,0'):
+def set_legend(legend, alpha_factor, symbol_layer=None):
     """
     Function to fill legend attributes with values from the symbolLayer
     """
@@ -114,13 +119,13 @@ def set_legend(legend, symbol_layer=None):
         properties = symbol_layer.properties()
 
         if layer_type == 'SimpleMarker' or layer_type == 'SimpleFill':
-            legend.set('BackColor', utils.rgba2argb(properties['color']))
-            legend.set('LineColor', utils.rgba2argb(properties['outline_color']))
+            legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
+            legend.set('LineColor', utils.rgba2argb(properties['outline_color'],alpha_factor))
             legend.set('Width', utils.mm2px(properties['outline_width']))
             legend.set('DashPattern', '')  # ??
 
         elif layer_type == 'SimpleLine':
-            legend.set('LineColor', utils.rgba2argb(properties['line_color']))
+            legend.set('LineColor', utils.rgba2argb(properties['line_color'],alpha_factor))
             legend.set('Width', utils.mm2px(properties['line_width']))
             legend.set('DashPattern', '')  # ??
 
@@ -137,13 +142,16 @@ def set_legend(legend, symbol_layer=None):
                   "A random style was used instead"
 
 
-def set_break(legend, value_break):
+def set_break(legend, value_break, layer_alpha):
     """
     Create legend's breaks to represent categories or ranges
 
     :param value_break: range or category object
     """
-    symbol_layer = value_break.symbol().symbolLayers()[0]
+    symbol = value_break.symbol()
+    alpha_factor = symbol.alpha() * layer_alpha
+
+    symbol_layer = symbol.symbolLayers()[0]
     type = symbol_layer.layerType()
     properties = symbol_layer.properties()
 
@@ -151,13 +159,13 @@ def set_break(legend, value_break):
     legend_break = ET.SubElement(legend, 'Break')
 
     if type == 'SimpleMarker' or type == 'SimpleFill':
-        color = utils.rgba2argb(properties['color'])
-        line_color = utils.rgba2argb(properties['outline_color'])
+        color = utils.rgba2argb(properties['color'],alpha_factor)
+        line_color = utils.rgba2argb(properties['outline_color'],alpha_factor)
         line_width = properties['outline_width']
 
     elif type == 'SimpleLine':
-        color = utils.rgba2argb(properties['line_color'])
-        line_color = utils.rgba2argb(properties['line_color'])
+        color = utils.rgba2argb(properties['line_color'],alpha_factor)
+        line_color = utils.rgba2argb(properties['line_color'],alpha_factor)
         line_width = properties['line_width']
     else:
         color = utils.random_color()

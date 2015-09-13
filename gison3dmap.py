@@ -238,7 +238,7 @@ class gison3dmap:
                 # Replace all colors in legend by project selection color
                 qcolor = map_canvas.mapSettings().selectionColor()
                 s_color = ",".join(map(str,qcolor.getRgb()))
-                s_color = utils.rgba2argb(s_color)
+                s_color = utils.rgba2argb(s_color,1.0)
                 layer_legend = re.sub(r'\d{1,3},\d{1,3},\d{1,3},\d{1,3}', s_color, layer_legend)
 
                 commands.append('DEFINELAYER ' + define_layer(layer))

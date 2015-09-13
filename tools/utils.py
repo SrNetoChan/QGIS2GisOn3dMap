@@ -2,7 +2,7 @@ import random
 import config
 
 
-def rgba2argb(rgba):
+def rgba2argb(rgba,alpha_factor):
     """
     Function to convert RGBA color values (red, green, blue, alpha)
     to ARGB (alpha, red, green, blue)
@@ -19,8 +19,11 @@ def rgba2argb(rgba):
     alpha = band_values.pop()
     band_values.insert(0,alpha)
     # Check is Transparencies are allowed, if not, set alpha value to no transparency
+    # Else apply alpha_factor resulting from layer alpha and symbol alpha
     if not config.shared.transparencia:
         band_values[0] = "255"
+    else:
+        band_values[0] = str(int(int(band_values[0]) * alpha_factor))
     # Convert list back to comma separated string
     argb = ",".join(band_values)
     return argb
