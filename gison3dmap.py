@@ -301,7 +301,9 @@ class gison3dmap:
         if self.cfg.clear_before_draw_map:
             commands.append('CLEAR')
 
-        for layer in visible_layers:
+        # Since last defined layer will be projected above the other, we need to iterate the
+        # Visible layer at the inverse order,i.e., bottom to top. That's why [::-1] was used
+        for layer in visible_layers[::-1]:
             layer_legend = get_layer_legend(layer)
 
             if layer.type() == layer.VectorLayer and layer_legend:
