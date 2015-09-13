@@ -94,43 +94,47 @@ def set_legend(legend, symbol_layer=None):
     """
     Function to fill legend attributes with values from the symbolLayer
     """
-    # Set default values for the case that layer_symbol arguments is not undeclared
-    legend.set('BackColor', utils.random_color())
-    legend.set('LineColor', utils.random_color())
+    # Set default values for the case that layer_symbol arguments is not declared
+    legend.set('BackColor', '')
+    legend.set('LineColor', '')
     legend.set('Width', '2')
     legend.set('ImagePath', '')
     legend.set('ImageScale', '1')
     legend.set('EnableHatch', 'False')
     legend.set('Hatch', '0')
     legend.set('FieldName', '')
-    legend.set('DashPattern', '')  # ??
+    legend.set('DashPattern', '')  # FIXME Need to understand how dash Pattern is read in gison3dmap
     legend.set('CampoRotacao', '')
     legend.set('CorSel', '255,255,255,0')
 
     # Check the type of symbolLayer and fill the legend attributes according
     if symbol_layer:
         layer_type = symbol_layer.layerType()
+        print "The layer type of this layer is: %s" % layer_type
         properties = symbol_layer.properties()
 
         if layer_type == 'SimpleMarker' or layer_type == 'SimpleFill':
             legend.set('BackColor', utils.rgba2argb(properties['color']))
             legend.set('LineColor', utils.rgba2argb(properties['outline_color']))
-            # FIXME:: Need to convert line width to pixels
             legend.set('Width', utils.mm2px(properties['outline_width']))
             legend.set('DashPattern', '')  # ??
 
         elif layer_type == 'SimpleLine':
             legend.set('LineColor', utils.rgba2argb(properties['line_color']))
-            # FIXME:: Need to convert line width to pixels
             legend.set('Width', utils.mm2px(properties['line_width']))
             legend.set('DashPattern', '')  # ??
 
         elif layer_type == 'ImageFill':
             legend.set('ImagePath', properties['imageFile'])
             legend.set('ImageScale', '1')
-            pass
+
         else:
-            print "Not possible to render the symbol properly a default was used instead"
+            legend.set('BackColor', utils.random_color())
+            legend.set('LineColor', utils.random_color())
+            # ::FIXME Pass this message to interface
+            print "It was not possible to Render the layer's Symbol. " \
+                  "Only Simple Marker,Simple Fill, Simple Line and Image fill are suported." \
+                  "A random style was used instead"
 
 
 def set_break(legend, value_break):
@@ -245,6 +249,8 @@ def define_layer(layer):
     layer_name = layer.name()
     provider = layer.dataProvider()
     source = re.sub(r'(.*)\|layerid=\d+', r'\1', provider.dataSourceUri())
+    source = source.replace('/data/Dropbox/','E:\\Alexandre\\Dropbox\\')
+    source = source.replace('/','\\')
 
     # If layer is vectorlayer get storage type
     if isinstance(provider, QgsVectorLayer):
