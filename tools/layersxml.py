@@ -81,7 +81,8 @@ def get_layer_legend(layer):
         else:
             print "This renderer is not supported by gison3dmap"
 
-        if layer.hasLabelsEnabled(): #FIXME:: this is depreaced need to update for 2.10 labelsEnabled()
+        print layer.labelsEnabled()
+        if layer.labelsEnabled():
             label_layer = ET.SubElement(layer_legend, 'LabelLayer')
             label_settings = QgsPalLayerSettings.fromLayer(layer)
             set_label(label_layer, layer.name(), label_settings)
@@ -206,20 +207,22 @@ def set_label(label_layer, layer_name, lab_set):
     # See if label is built by a single field or expression
     if lab_set.isExpression:
         field_name = ''
-        expression_enable = 'True'
+        is_exp_enable = 'True'
         expression = lab_set.getLabelExpression().dump() #FIXME:: Need to check Expressions syntax
     else:
         field_name = lab_set.fieldName
-        expression_enable = 'False'
-        expression =''
-    label_layer.set('ColunaText', field_name)
+        is_exp_enable = 'False'
+        expression = ''
+
+    label_layer.set('ColunaTexto', field_name)
     label_layer.set('ExpressaoRotulo', expression)
     label_layer.set('ColunaRotacao', '')
-    label_layer.set('Prioridade', str(lab_set.priority)) #FIXME rever valores pode ir de 0 a 100
-    label_layer.set('CollisionDetectio', 'True')
-    label_layer.set('Cor', '-16777216') # FIXME:: não tenho a certeza
+    label_layer.set('Prioridade', str(10 * lab_set.priority))
+    label_layer.set('CollisionDetection', 'True')
+    # label_layer.set('Cor', lab_set.textColor)
+    label_layer.set('Cor', '-16777216') # FIXME:: não tenho a certeza de qual a nomenclatura destas cores
     label_layer.set('Activo', 'True')
-    label_layer.set('ExpressaoActiva', expression_enable)
+    label_layer.set('ExpressaoActiva', is_exp_enable)
     if lab_set.scaleVisibility:
         min_scale = str(lab_set.scaleMin)
         max_scale = str(lab_set.scaleMax)
@@ -233,21 +236,32 @@ def set_label(label_layer, layer_name, lab_set):
     label_layer.set('CollisionBufferH', '0')
 
     cor_fundo = ET.SubElement(label_layer, 'CorFundo')
-    cor_fundo.set('Cor', str(lab_set.textColor.rgb())) #::FIXME:: this color does not work...
+    c = lab_set.textColor
+
+    # Check if Background option is On
+    if lab_set.shapeDraw:
+        # Currently gison3dmap only supports Rectangular Shape
+        if lab_set.shapeType == 0:
+            lab_set.shapeFillColor # FIXME:: Need to convert to this kind of colors
+            cor_fundo.set('Cor', 0)
+        else:
+            print "The label background type is not supported. Choose Rectangular instead."
 
     if lab_set.bufferDraw:
-        halo = ET.SubElement(label_layer, 'CorFundo')
-        halo.set('HaloCor', str(lab_set.bufferColor))
-        halo.set('HaloCor', str(lab_set.bufferSize))
+        halo = ET.SubElement(label_layer, 'halo')
+        #halo.set('HaloCor', str(lab_set.bufferColor))
+        halo.set('HaloCor', "-123") # FIXME Need to convert color to
+        halo.set('HaloTamanho', utils.mm2px(lab_set.bufferSize))
 
     offset = ET.SubElement(label_layer, 'Offset')
-    offset.set('OffsetX', "{:.3f}".format(lab_set.xOffset)) # FIXME:: What are the units of the offset?
-    offset.set('OffsetY', "{:.3f}".format(lab_set.yOffset))
+    # This assumes that we are using mm.
+    offset.set('OffsetX', utils.mm2px(lab_set.xOffset))
+    offset.set('OffsetY', utils.mm2px(lab_set.yOffset))
 
     fonte = ET.SubElement(label_layer, 'Fonte')
     fonte.set('Tamanho', "{:.1f}".format(lab_set.textFont.pointSizeF()))
     fonte.set('Nome', lab_set.textFont.family())
-    fonte.set('StrickOut', str(lab_set.textFont.strikeOut()))
+    fonte.set('StrikeOut', str(lab_set.textFont.strikeOut()))
     fonte.set('Underline', str(lab_set.textFont.underline()))
     fonte.set('Bold', str(lab_set.textFont.bold()))
     fonte.set('Italic', str(lab_set.textFont.italic()))
