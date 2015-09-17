@@ -128,6 +128,10 @@ def set_legend(legend, alpha_factor, symbol_layer=None):
             legend.set('Width', utils.mm2px(properties['outline_width']))
             legend.set('DashPattern', '')  # ??
 
+            if properties['style'] not in ('solid','no'):
+                legend.set('EnableHatch', 'True')
+                legend.set('Hatch', '0')
+
         elif layer_type == 'SimpleLine':
             if properties['line_style'] != 'no':
                 legend.set('LineColor', utils.rgba2argb(properties['line_color'],alpha_factor))
@@ -182,7 +186,6 @@ def set_break(legend, value_break, layer_alpha):
         line_color = '255,0,0,0'
         line_width = '1'
         print "Not possible to render the symbol properly a default was used instead"
-
     legend_break.set('EndColor', color)
     legend_break.set('StartColor', color)
     legend_break.set('OutlineEndColor', line_color)
