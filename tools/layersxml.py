@@ -118,15 +118,19 @@ def set_legend(legend, alpha_factor, symbol_layer=None):
         layer_type = symbol_layer.layerType()
         print "The layer type of this layer is: %s" % layer_type
         properties = symbol_layer.properties()
+        print properties
 
         if layer_type == 'SimpleMarker' or layer_type == 'SimpleFill':
-            legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
-            legend.set('LineColor', utils.rgba2argb(properties['outline_color'],alpha_factor))
+            if properties['style'] != 'no':
+                legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
+            if properties['outline_style'] != 'no':
+                legend.set('LineColor', utils.rgba2argb(properties['outline_color'],alpha_factor))
             legend.set('Width', utils.mm2px(properties['outline_width']))
             legend.set('DashPattern', '')  # ??
 
         elif layer_type == 'SimpleLine':
-            legend.set('LineColor', utils.rgba2argb(properties['line_color'],alpha_factor))
+            if properties['line_style'] != 'no':
+                legend.set('LineColor', utils.rgba2argb(properties['line_color'],alpha_factor))
             legend.set('Width', utils.mm2px(properties['line_width']))
             legend.set('DashPattern', '')  # ??
 
@@ -159,14 +163,19 @@ def set_break(legend, value_break, layer_alpha):
     # Create a new break sub-element in legend
     legend_break = ET.SubElement(legend, 'Break')
 
+    # setting default values
+    color = ''
+    line_color = ''
     if type == 'SimpleMarker' or type == 'SimpleFill':
-        color = utils.rgba2argb(properties['color'],alpha_factor)
-        line_color = utils.rgba2argb(properties['outline_color'],alpha_factor)
+        if properties['style'] != 'no':
+            color = utils.rgba2argb(properties['color'],alpha_factor)
+        if properties['outline_style'] != 'no':
+            line_color = utils.rgba2argb(properties['outline_color'],alpha_factor)
         line_width = properties['outline_width']
 
     elif type == 'SimpleLine':
-        color = utils.rgba2argb(properties['line_color'],alpha_factor)
-        line_color = utils.rgba2argb(properties['line_color'],alpha_factor)
+        if properties['line_style'] != 'no':
+            line_color = utils.rgba2argb(properties['line_color'],alpha_factor)
         line_width = properties['line_width']
     else:
         color = utils.random_color()
