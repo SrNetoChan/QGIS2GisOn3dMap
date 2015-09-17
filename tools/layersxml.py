@@ -243,7 +243,7 @@ def set_label(label_layer, layer_name, lab_set):
         # Currently gison3dmap only supports Rectangular Shape
         if lab_set.shapeType == 0:
             lab_set.shapeFillColor # FIXME:: Need to convert to this kind of colors
-            cor_fundo.set('Cor', 0)
+            cor_fundo.set('Cor', '0')
         else:
             print "The label background type is not supported. Choose Rectangular instead."
 
@@ -271,6 +271,8 @@ def define_layer(layer):
     layer_name = layer.name()
     provider = layer.dataProvider()
     source = re.sub(r'(.*)\|layerid=\d+', r'\1', provider.dataSourceUri())
+    source = re.sub(r'(.*)\|subset.*', r'\1', source)
+    #FIX ME Make this by folder mapping
     source = source.replace('/data/Dropbox/','E:\\Alexandre\\Dropbox\\')
     source = source.replace('/','\\')
 
@@ -286,10 +288,16 @@ def define_layer(layer):
 
 
 def get_layer_filter(layer):
-    provider = layer.dataProvider()
-    subset_string = provider.subsetString()
+    subset_string = layer.dataProvider().subsetString()
     if len(subset_string) == 0:
         return ',1=1'
     else:
-        # FIXME:: Must remake substring to the gison3dmap syntax
-        return subset_string
+        # Convert subset_string to gison3dmap syntax
+        # replace double quotes by square brackets
+        s = subset_string
+        p = re.compile(r'"(.*?)"')
+        s = p.sub(r'[\1]',s)
+
+        s = s.replace("'" , '"')
+        s = s.replace('!=' , '<>')
+        return ',' + s
