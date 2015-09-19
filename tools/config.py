@@ -22,7 +22,6 @@
 """
 
 from PyQt4.QtCore import QSettings
-from utils import arrayToString, stringToArray
 
 class config:
     """QGIS Plugin Implementation."""
@@ -40,7 +39,7 @@ class config:
         self.display_multimedia = s.value("gison3dmap/DisplayMultimedia","dword:00000000")
         self.host_multimedia = s.value("gison3dmap/HostMultimedia","localhost")
         self.log_path = s.value("gison3dmap/LogPath","")
-        self.file_map = stringToArray(s.value("gison3dmap/FileMap",''))
+        self.file_map = s.value("gison3dmap/FileMap",None)
 
     def storeSettings(self):
         """
@@ -58,7 +57,24 @@ class config:
         s.setValue("gison3dmap/DisplayMultimedia",self.display_multimedia)
         s.setValue("gison3dmap/HostMultimedia",  self.host_multimedia)
         s.setValue("gison3dmap/LogPath", self.log_path)
-        # s.setValue("gison3dmap/FileMap",)
+        s.setValue("gison3dmap/FileMap", self.file_map)
 
+    def do_file_mapping(self, source):
+        """
+        Function to replace source path by remote path
+        :param source: String
+        :return: String
+        """
+        remote_source = source
+        # For each row on File Mapping configuration try to match and replace
+        # origin strings (at [0]) by destination string (at [1])
+        if self.file_map:
+            for pair in self.file_map:
+                remote_source = remote_source.replace(pair[0],pair[1])
 
+        # Revert dashes in case client is unix based
+        remote_source = remote_source.replace('/','\\')
+        return remote_source
+
+# Initialize a instance to share with other modules as import
 shared = config()

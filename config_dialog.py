@@ -54,6 +54,8 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
         self.cfg = config.shared
 
         # UI CONNECTORS
+        self.addPushButton.clicked.connect(self.addFilemapRow)
+        self.deletePushButton.clicked.connect(self.deleteFilemapRows)
 
     def settingsToDialog(self):
         self.controller.setText(self.cfg.controller)
@@ -71,6 +73,11 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
             self.display_multimedia.setCurrentIndex(index)
 
         #File mapping
+        # Clear all rows before add new ones
+        # This prevents duplicate rows in case the dialog is cancelled
+        while self.model.rowCount() > 0:
+            self.model.removeRow(0)
+
         if self.cfg.file_map:
             for row in self.cfg.file_map:
                 input_row = [QtGui.QStandardItem(item) for item in row]
@@ -95,19 +102,49 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
         self.cfg.host_multimedia = self.host_multimedia.text()
         self.cfg.log_path = self.log_path.text()
 
+        self.cfg.file_map = self.getFilemapArray()
+
+        #Call function to store settings in system
+        self.cfg.storeSettings()
+
+    def addFilemapRow(self):
+        # input_row = []
+        # for i in range(self.model.columnCount():
+        # input_row = [QtGui.QStandardItem(item) for item in row]
+        self.model.appendRow(QtGui.QStandardItem())
+
+    def deleteFilemapRows(self):
+        rows = self.filemap_tv.selectionModel().selectedRows()
+        for r in rows:
+            self.model.removeRow(r.row())
+
+    def getFilemapArray(self):
+        """
+        Return an array with all items from File Mappings table view
+        :return: Array of Strings
+        """
         #Get Values from file mapping table
         temp_array = []
         for i in range(self.model.rowCount()):
             temp_list = []
+            valid_row = True
             for j in range(self.model.columnCount()):
-                temp_list.append(self.model.item(i,j).text())
-            temp_array.append(temp_list)
+                item = self.model.item(i,j)
+                if item:
+                    if len(item.text()) > 0:
+                        temp_list.append(item.text())
+                    else:
+                        # If cell has empty string all row became invalid
+                        valid_row = False
+                else:
+                    # If a cell is null the all row became invalid
+                    valid_row = False
+            # Non valid rows will be ignored
+            if valid_row:
+                temp_array.append(temp_list)
 
-        # If table is empty
+        # Make sure None is returned case the final array have no valid rows at all
         if len(temp_array) == 0:
-            temp_array = None
-
-        self.cfg.file_map = temp_array
-
-        #Call function to store settings in system
-        self.cfg.storeSettings()
+            return None
+        else:
+            return temp_array

@@ -24,10 +24,11 @@
 from qgis.core import *
 
 import lxml.etree as ET
-import random
 import re
-import utils
+import utils, config
 
+# Get current settings from the config module
+cfg = config.shared
 
 def get_layer_legend(layer):
     """
@@ -257,8 +258,9 @@ def define_layer(layer):
     layer_name = layer.name()
     provider = layer.dataProvider()
     source = re.sub(r'(.*)\|layerid=\d+', r'\1', provider.dataSourceUri())
-    source = source.replace('/data/Dropbox/','E:\\Alexandre\\Dropbox\\')
-    source = source.replace('/','\\')
+
+    # Call function to do file mapping between local source and remote source
+    source = cfg.do_file_mapping(source)
 
     # If layer is vectorlayer get storage type
     if isinstance(provider, QgsVectorLayer):

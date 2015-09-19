@@ -1,7 +1,6 @@
 import random
 import config
 
-
 def rgba2argb(rgba,alpha_factor):
     """
     Function to convert RGBA color values (red, green, blue, alpha)
