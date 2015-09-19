@@ -22,6 +22,7 @@
 """
 
 from PyQt4.QtCore import QSettings
+from utils import arrayToString, stringToArray
 
 class config:
     """QGIS Plugin Implementation."""
@@ -29,7 +30,7 @@ class config:
     def __init__(self):
         """Constructor."""
         s = QSettings()
-        self.num_drive_map = s.value("gison3dmap/NumDriveMap","0")
+        self.num_drive_map = s.value("gison3dmap/NumDriveMap","")
         self.controller = s.value("gison3dmap/Controller","localhost")
         self.log = s.value("gison3dmap/Log",False) == 'true'
         self.log_erros = s.value("gison3dmap/LogErros",False) == 'true'
@@ -39,7 +40,7 @@ class config:
         self.display_multimedia = s.value("gison3dmap/DisplayMultimedia","dword:00000000")
         self.host_multimedia = s.value("gison3dmap/HostMultimedia","localhost")
         self.log_path = s.value("gison3dmap/LogPath","")
-
+        self.file_map = stringToArray(s.value("gison3dmap/FileMap",''))
 
     def storeSettings(self):
         """
@@ -48,7 +49,6 @@ class config:
         """
         s = QSettings()
 
-        # s.setValue("gison3dmap/NumDriveMap", self.num_drive_map)
         s.setValue("gison3dmap/Controller", self.controller)
         s.setValue("gison3dmap/Log", self.log)
         s.setValue("gison3dmap/LogErros", self.log_erros)
@@ -58,5 +58,7 @@ class config:
         s.setValue("gison3dmap/DisplayMultimedia",self.display_multimedia)
         s.setValue("gison3dmap/HostMultimedia",  self.host_multimedia)
         s.setValue("gison3dmap/LogPath", self.log_path)
+        # s.setValue("gison3dmap/FileMap",)
+
 
 shared = config()

@@ -42,6 +42,14 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
 
         self.display_multimedia.addItems(["0","1","2","3","4"])
 
+        # Prepare file mapping table
+        header = ['Origem','Destino']
+        self.model = QtGui.QStandardItemModel(0,2)
+        self.model.setHorizontalHeaderLabels(header)
+        self.filemap_tv.setModel(self.model)
+        self.filemap_tv.verticalHeader().setVisible(False)
+        self.filemap_tv.horizontalHeader().setStretchLastSection(True)
+
         # Save reference from shared configuration instance
         self.cfg = config.shared
 
@@ -62,6 +70,13 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
         if index >= 0:
             self.display_multimedia.setCurrentIndex(index)
 
+        #File mapping
+        if self.cfg.file_map:
+            for row in self.cfg.file_map:
+                input_row = [QtGui.QStandardItem(item) for item in row]
+                self.model.appendRow(input_row)
+
+
     def dialogToSettings(self):
         """
         Get values from configuration dialog widgets
@@ -79,33 +94,20 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
         self.cfg.display_multimedia = self.display_multimedia.currentText()
         self.cfg.host_multimedia = self.host_multimedia.text()
         self.cfg.log_path = self.log_path.text()
+
+        #Get Values from file mapping table
+        temp_array = []
+        for i in range(self.model.rowCount()):
+            temp_list = []
+            for j in range(self.model.columnCount()):
+                temp_list.append(self.model.item(i,j).text())
+            temp_array.append(temp_list)
+
+        # If table is empty
+        if len(temp_array) == 0:
+            temp_array = None
+
+        self.cfg.file_map = temp_array
+
+        #Call function to store settings in system
         self.cfg.storeSettings()
-
-        # self.num_drive_map = "0"
-        # self.config_dlg.controller.setText(self.controller)
-        # self.config_dlg.log = self.log
-        # self.config_dlg.log_erros = self.log_erros
-        # self.config_dlg.transparencia = self.transparencia
-        # self.config_dlg.symbol_scale = self.symbol_scale
-        # self.config_dlg.clear_antes_draw_map = self.clear_antes_draw_map
-        # self.config_dlg.display_multimedia = self.display_multimedia
-        # self.config_dlg.host_multimedia = self.host_multimedia
-        # self.config_dlg.log_path = self.log_path
-
-        # call function to store the settings in OS registry
-
-
-        # # Get new settings from dialog widget's values
-        # self.num_drive_map = "0"
-        # self.controller = self.config_dlg.controller.text()
-        # self.log = self.config_dlg.log
-        # self.log_erros = self.config_dlg.log_erros
-        # self.transparencia = self.config_dlg.transparencia
-        # self.symbol_scale =self.config_dlg.symbol_scale
-        # self.clear_antes_draw_map = self.config_dlg.clear_antes_draw_map
-        # self.display_multimedia = "dword:00000000"
-        # self.host_multimedia = self.config_dlg.host_multimedia
-        # self.log_path = self.config_dlg.log_path
-        #
-        # # and Save settings to system
-

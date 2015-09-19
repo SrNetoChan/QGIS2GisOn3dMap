@@ -62,6 +62,30 @@ def random_color():
     color = ",".join(color)
     return color
 
+def stringToArray(array_string):
+    """
+    Converts a string representing an array of strings
+    Lines are separated by semicolons and elements separated by colons
+    :param array_string: String
+    :return: array of Strings
+    """
+    if len(array_string) > 0:
+        array = array_string.split(';')
+        array = [line.split(',') for line in array]
+        return array
+    else:
+        return None
+
+def arrayToString(array):
+    """
+    Converts an array os strings in a string representation
+    :param array: Array
+    :return: String
+    """
+    array_string = [','.join(line) for line in array]
+    array_string = ';'.join(array_string)
+    return array_string
+
 #testing
 if __name__ == '__main__':
     print rgba2argb('101,102,103,127')
