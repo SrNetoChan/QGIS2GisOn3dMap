@@ -42,10 +42,20 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
 
         self.display_multimedia.addItems(["0","1","2","3","4"])
 
+        # Prepare file mapping table
+        header = ['Origem','Destino']
+        self.model = QtGui.QStandardItemModel(0,2)
+        self.model.setHorizontalHeaderLabels(header)
+        self.filemap_tv.setModel(self.model)
+        self.filemap_tv.verticalHeader().setVisible(False)
+        self.filemap_tv.horizontalHeader().setStretchLastSection(True)
+
         # Save reference from shared configuration instance
         self.cfg = config.shared
 
         # UI CONNECTORS
+        self.addPushButton.clicked.connect(self.addFilemapRow)
+        self.deletePushButton.clicked.connect(self.deleteFilemapRows)
 
     def settingsToDialog(self):
         self.controller.setText(self.cfg.controller)
@@ -61,6 +71,18 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
         index = self.display_multimedia.findText(self.cfg.display_multimedia)
         if index >= 0:
             self.display_multimedia.setCurrentIndex(index)
+
+        #File mapping
+        # Clear all rows before add new ones
+        # This prevents duplicate rows in case the dialog is cancelled
+        while self.model.rowCount() > 0:
+            self.model.removeRow(0)
+
+        if self.cfg.file_map:
+            for row in self.cfg.file_map:
+                input_row = [QtGui.QStandardItem(item) for item in row]
+                self.model.appendRow(input_row)
+
 
     def dialogToSettings(self):
         """
@@ -79,33 +101,50 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
         self.cfg.display_multimedia = self.display_multimedia.currentText()
         self.cfg.host_multimedia = self.host_multimedia.text()
         self.cfg.log_path = self.log_path.text()
+
+        self.cfg.file_map = self.getFilemapArray()
+
+        #Call function to store settings in system
         self.cfg.storeSettings()
 
-        # self.num_drive_map = "0"
-        # self.config_dlg.controller.setText(self.controller)
-        # self.config_dlg.log = self.log
-        # self.config_dlg.log_erros = self.log_erros
-        # self.config_dlg.transparencia = self.transparencia
-        # self.config_dlg.symbol_scale = self.symbol_scale
-        # self.config_dlg.clear_antes_draw_map = self.clear_antes_draw_map
-        # self.config_dlg.display_multimedia = self.display_multimedia
-        # self.config_dlg.host_multimedia = self.host_multimedia
-        # self.config_dlg.log_path = self.log_path
+    def addFilemapRow(self):
+        # input_row = []
+        # for i in range(self.model.columnCount():
+        # input_row = [QtGui.QStandardItem(item) for item in row]
+        self.model.appendRow(QtGui.QStandardItem())
 
-        # call function to store the settings in OS registry
+    def deleteFilemapRows(self):
+        rows = self.filemap_tv.selectionModel().selectedRows()
+        for r in rows:
+            self.model.removeRow(r.row())
 
+    def getFilemapArray(self):
+        """
+        Return an array with all items from File Mappings table view
+        :return: Array of Strings
+        """
+        #Get Values from file mapping table
+        temp_array = []
+        for i in range(self.model.rowCount()):
+            temp_list = []
+            valid_row = True
+            for j in range(self.model.columnCount()):
+                item = self.model.item(i,j)
+                if item:
+                    if len(item.text()) > 0:
+                        temp_list.append(item.text())
+                    else:
+                        # If cell has empty string all row became invalid
+                        valid_row = False
+                else:
+                    # If a cell is null the all row became invalid
+                    valid_row = False
+            # Non valid rows will be ignored
+            if valid_row:
+                temp_array.append(temp_list)
 
-        # # Get new settings from dialog widget's values
-        # self.num_drive_map = "0"
-        # self.controller = self.config_dlg.controller.text()
-        # self.log = self.config_dlg.log
-        # self.log_erros = self.config_dlg.log_erros
-        # self.transparencia = self.config_dlg.transparencia
-        # self.symbol_scale =self.config_dlg.symbol_scale
-        # self.clear_antes_draw_map = self.config_dlg.clear_antes_draw_map
-        # self.display_multimedia = "dword:00000000"
-        # self.host_multimedia = self.config_dlg.host_multimedia
-        # self.log_path = self.config_dlg.log_path
-        #
-        # # and Save settings to system
-
+        # Make sure None is returned case the final array have no valid rows at all
+        if len(temp_array) == 0:
+            return None
+        else:
+            return temp_array

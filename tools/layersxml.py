@@ -24,10 +24,11 @@
 from qgis.core import *
 
 import lxml.etree as ET
-import random
 import re
-import utils
+import utils, config
 
+# Get current settings from the config module
+cfg = config.shared
 
 def get_layer_legend(layer):
     """
@@ -118,7 +119,6 @@ def set_legend(legend, alpha_factor, symbol_layer=None):
         layer_type = symbol_layer.layerType()
         print "The layer type of this layer is: %s" % layer_type
         properties = symbol_layer.properties()
-        print properties
 
         if layer_type == 'SimpleMarker' or layer_type == 'SimpleFill':
             if properties['style'] != 'no':
@@ -186,6 +186,7 @@ def set_break(legend, value_break, layer_alpha):
         line_color = '255,0,0,0'
         line_width = '1'
         print "Not possible to render the symbol properly a default was used instead"
+
     legend_break.set('EndColor', color)
     legend_break.set('StartColor', color)
     legend_break.set('OutlineEndColor', line_color)
@@ -283,10 +284,10 @@ def define_layer(layer):
     layer_name = layer.name()
     provider = layer.dataProvider()
     source = re.sub(r'(.*)\|layerid=\d+', r'\1', provider.dataSourceUri())
-    source = re.sub(r'(.*)\|subset.*', r'\1', source)
-    #FIX ME Make this by folder mapping
-    source = source.replace('/data/Dropbox/','E:\\Alexandre\\Dropbox\\')
-    source = source.replace('/','\\')
+	source = re.sub(r'(.*)\|subset.*', r'\1', source)
+
+    # Call function to do file mapping between local source and remote source
+    source = cfg.do_file_mapping(source)
 
     # If layer is vectorlayer get storage type
     if isinstance(provider, QgsVectorLayer):
