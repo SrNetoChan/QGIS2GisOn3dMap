@@ -35,7 +35,13 @@
   <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
+  <property name="modal">
+   <bool>false</bool>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetMinimumSize</enum>
+   </property>
    <item row="10" column="2">
     <widget class="QPushButton" name="deletePushButton">
      <property name="enabled">
@@ -230,6 +236,16 @@
      </property>
     </spacer>
    </item>
+   <item row="9" column="2">
+    <widget class="QPushButton" name="addPushButton">
+     <property name="locale">
+      <locale language="Portuguese" country="Portugal"/>
+     </property>
+     <property name="text">
+      <string>Adicionar</string>
+     </property>
+    </widget>
+   </item>
    <item row="8" column="0" rowspan="4" colspan="2">
     <widget class="QTableView" name="filemap_tv">
      <property name="minimumSize">
@@ -246,16 +262,6 @@
      </property>
      <property name="sortingEnabled">
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="2">
-    <widget class="QPushButton" name="addPushButton">
-     <property name="locale">
-      <locale language="Portuguese" country="Portugal"/>
-     </property>
-     <property name="text">
-      <string>Adicionar</string>
      </property>
     </widget>
    </item>

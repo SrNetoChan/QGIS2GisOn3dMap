@@ -269,7 +269,10 @@ class gison3dmap:
                 commands.append('CLEAR')
 
             # Try to get the legend form layer
-            layer_legend = get_layer_legend(layer)
+            try:
+                layer_legend = get_layer_legend(layer)
+            except:
+                layer_legend = None
 
             if layer.type() == layer.VectorLayer and layer_legend:
                 commands.append('DEFINELAYER ' + define_layer(layer))
@@ -304,7 +307,10 @@ class gison3dmap:
         # Since last defined layer will be projected above the other, we need to iterate the
         # Visible layer at the inverse order,i.e., bottom to top. That's why [::-1] was used
         for layer in visible_layers[::-1]:
-            layer_legend = get_layer_legend(layer)
+            try:
+                layer_legend = get_layer_legend(layer)
+            except:
+                layer_legend = None
 
             if layer.type() == layer.VectorLayer and layer_legend:
                 commands.append('DEFINELAYER ' + define_layer(layer))

@@ -82,13 +82,11 @@ def get_layer_legend(layer):
         else:
             print "This renderer is not supported by gison3dmap"
 
-        print layer.labelsEnabled()
         if layer.labelsEnabled():
             label_layer = ET.SubElement(layer_legend, 'LabelLayer')
             label_settings = QgsPalLayerSettings.fromLayer(layer)
             set_label(label_layer, layer.name(), label_settings)
         # FIXME::Need to add labels
-
 
         # prepare xml string for output
         xml_string = ET.tostring(layer_legend, pretty_print=False, xml_declaration=True, encoding='utf 8')
@@ -117,20 +115,22 @@ def set_legend(legend, alpha_factor, symbol_layer=None):
     # Check the type of symbolLayer and fill the legend attributes according
     if symbol_layer:
         layer_type = symbol_layer.layerType()
-        print "The layer type of this layer is: %s" % layer_type
         properties = symbol_layer.properties()
 
         if layer_type == 'SimpleMarker' or layer_type == 'SimpleFill':
-            if properties['style'] != 'no':
-                legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
+            try:
+                if properties['style'] != 'no':
+                    legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
+
+                if properties['style'] not in ('solid','no'):
+                    legend.set('EnableHatch', 'True')
+                    legend.set('Hatch', '0') # FIXME:: Hatchs in QGIS are different from gison3dmap
+            except:
+                pass
             if properties['outline_style'] != 'no':
                 legend.set('LineColor', utils.rgba2argb(properties['outline_color'],alpha_factor))
             legend.set('Width', utils.mm2px(properties['outline_width']))
             legend.set('DashPattern', '')  # ??
-
-            if properties['style'] not in ('solid','no'):
-                legend.set('EnableHatch', 'True')
-                legend.set('Hatch', '0')
 
         elif layer_type == 'SimpleLine':
             if properties['line_style'] != 'no':
@@ -141,7 +141,6 @@ def set_legend(legend, alpha_factor, symbol_layer=None):
         elif layer_type == 'ImageFill':
             legend.set('ImagePath', properties['imageFile'])
             legend.set('ImageScale', '1')
-
         else:
             legend.set('BackColor', utils.random_color())
             legend.set('LineColor', utils.random_color())
@@ -255,15 +254,15 @@ def set_label(label_layer, layer_name, lab_set):
     if lab_set.shapeDraw:
         # Currently gison3dmap only supports Rectangular Shape
         if lab_set.shapeType == 0:
-            lab_set.shapeFillColor # FIXME:: Need to convert to this kind of colors
-            cor_fundo.set('Cor', '0')
+            #qglab_set.shapeFillColor # FIXME:: Need to convert to this kind of colors
+            cor_fundo.set('Cor', '16777215') #hardcoded as White
         else:
             print "The label background type is not supported. Choose Rectangular instead."
 
     if lab_set.bufferDraw:
         halo = ET.SubElement(label_layer, 'halo')
-        #halo.set('HaloCor', str(lab_set.bufferColor))
-        halo.set('HaloCor', "-123") # FIXME Need to convert color to
+        #halo.set('HaloCor', str(lab_set.bufferColor)) FIXME:: Need to convert color to
+        halo.set('HaloCor', "16777215") # hardcoded as white
         halo.set('HaloTamanho', utils.mm2px(lab_set.bufferSize))
 
     offset = ET.SubElement(label_layer, 'Offset')
@@ -284,19 +283,20 @@ def define_layer(layer):
     layer_name = layer.name()
     provider = layer.dataProvider()
     source = re.sub(r'(.*)\|layerid=\d+', r'\1', provider.dataSourceUri())
-	source = re.sub(r'(.*)\|subset.*', r'\1', source)
+    # case there is a subset definition remove it
+    source = re.sub(r'(.*)\|subset.*', r'\1', source)
 
     # Call function to do file mapping between local source and remote source
     source = cfg.do_file_mapping(source)
 
     # If layer is vectorlayer get storage type
-    if isinstance(provider, QgsVectorLayer):
-        provider_type = provider.storageType()
+    if layer.type() == layer.VectorLayer:
+        # provider_type = provider.storageType() #FIXME:: Make it work for other providers
+        provider_type = 'SHP' # Hardcoded for shapefile only
         result = layer_name + ',' + provider_type + ',' + source
     else:
-        result = layer_name + ',SHP,' + source
+        result = layer_name + ',' + source
 
-    # FIXME:: Must remake provider_type gison3map syntax
     return result
 
 

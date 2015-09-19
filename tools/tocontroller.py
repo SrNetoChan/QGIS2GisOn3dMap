@@ -31,13 +31,13 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
     Configurated Socket connection
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # FIXME:: Try connect, if connection not available inform the user
     s.connect(ip_port)
-    # print messages
+
     for message in messages:
         s.send(message+'\n')
         print 'CMD: ', message
     s.close()
-    return None
 
 # Tests
 if __name__ == '__main__':
