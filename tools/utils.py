@@ -1,3 +1,26 @@
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+ gison3dmapDialog
+                                 A QGIS plugin
+ Client for gison3dmap to project gis data in a physical terrain model
+                             -------------------
+        begin                : 2015-07-24
+        git sha              : $Format:%H$
+        copyright            : (C) 2015 by Alexandre Neto (for CCC Geomática)
+        email                : alex.f.neto@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
 import random
 import config
 

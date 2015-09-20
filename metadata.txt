@@ -8,8 +8,8 @@
 
 [general]
 name=gison3dmap
-qgisMinimumVersion=2.0
-description=Client for gison3dmap to project gis data in a physical terrain model
+qgisMinimumVersion=2.10
+description=QGIS Client for gison3dmap system. Allows the projection of QGIS layers into a physical terrain model
 version=0.1
 author=Alexandre Neto (for CCC Geomática)
 email=alex.f.neto@gmail.com
@@ -24,9 +24,9 @@ email=alex.f.neto@gmail.com
 # Tags are comma separated with spaces allowed
 tags=
 
-homepage=
-tracker=
-repository=
+homepage= https://github.com/GisOn3dMap/QGISPlugin
+tracker= https://github.com/GisOn3dMap/QGISPlugin/issues
+repository= https://github.com/GisOn3dMap/QGISPlugin
 category=Plugins
 icon=icons/logo_gison3dmap.jpg
 # experimental flag

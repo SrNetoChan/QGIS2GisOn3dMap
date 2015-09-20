@@ -39,18 +39,31 @@ LOCALES =
 SOURCES = \
 	__init__.py \
 	gison3dmap.py \
-	gison3dmap_dialog.py
+	gison3dmap_dialog.py \
+	config_dialog.py \
+	tools/__init__.py \
+	tools/config.py \
+	tools/layersxml.py \
+	tools/tocontroller.py \
+	tools/utils.py
+
 
 PLUGINNAME = gison3dmap
 
 PY_FILES = \
 	gison3dmap.py \
 	gison3dmap_dialog.py \
-	__init__.py
+	__init__.py \
+	config_dialog.py \
+	tools/__init__.py \
+	tools/config.py \
+	tools/layersxml.py \
+	tools/tocontroller.py \
+	tools/utils.py
 
-UI_FILES = gison3dmap_dialog_base.ui
+UI_FILES = gison3dmap_dialog_base.ui config_dialog_base.ui
 
-EXTRAS = icon.png metadata.txt
+EXTRAS = icon.png metadata.txt help/ComandosClienteGisOn3dMap.resx
 
 COMPILED_RESOURCE_FILES = resources_rc.py
 
