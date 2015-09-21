@@ -259,40 +259,59 @@ class gison3dmap:
     def sendLayer(self):
         """Function to send active layer to gison3dmap"""
         map_canvas = self.iface.mapCanvas()
-        layer = map_canvas.currentLayer()
+        tree_view = self.iface.layerTreeView()
+        current_node = tree_view.currentNode()
+
+        if current_node.nodeType() == 1:
+            #In this case the node is a QgsLayerTree
+            #One single layer will be projected
+            layer = current_node.layer()
+            group_layers = [layer]
+
+        elif current_node.nodeType() == 0:
+            #In this case the node is a QgsLayerGroup
+            #All visible layers with the group should be projected
+            layers_tree = current_node.findLayers()
+            group_layers = [layer.layer() for layer in layers_tree if layer.isVisible()]
+
+        else:
+            group_layers = None
+
+        print group_layers
 
         #FIXME:: Make Button inactive if not layer and remove that test from here
-        if layer:
+        if len(group_layers) > 0:
             commands = list()
 
             if self.cfg.clear_before_draw_map:
                 commands.append('CLEAR')
 
-            # Try to get the legend form layer
-            try:
-                layer_legend = get_layer_legend(layer)
-            except:
-                layer_legend = None
+            for layer in group_layers[::-1]: # [::-1] is used to reverse the order of layers to project
+                # Try to get the legend form layer
+                try:
+                    layer_legend = get_layer_legend(layer)
+                except:
+                    layer_legend = None
 
-            if layer.type() == layer.VectorLayer and layer_legend:
-                commands.append('DEFINELAYER ' + define_layer(layer))
-                commands.append('LEGEND ' + layer_legend)
-                commands.append('LAYERSQL ' + layer.name() + get_layer_filter(layer))
+                if layer.type() == layer.VectorLayer and layer_legend:
+                    commands.append('DEFINELAYER ' + define_layer(layer))
+                    commands.append('LEGEND ' + layer_legend)
+                    commands.append('LAYERSQL ' + layer.name() + get_layer_filter(layer))
 
-            elif layer.type() == layer.RasterLayer:
-                commands.append('DEFINELAYER ' + define_layer(layer))
-                commands.append('GRID ' + layer.name())
+                elif layer.type() == layer.RasterLayer:
+                    commands.append('DEFINELAYER ' + define_layer(layer))
+                    commands.append('GRID ' + layer.name())
+
+                else:
+                    print "Invalid renderer for layer : ", layer.name() #FIXME:: Use a warning message for this
 
             commands.append('DRAW')
 
-            # Send list of messages to controller --> function
+            tocontroller.send_messages(commands, self.ip_port)
 
-            if len(commands)>2:
-                tocontroller.send_messages(commands, self.ip_port)
-            else:
-                print "Invalid renderer for layer : ", layer.name()
         else:
-            print "Please select a Vector or Raster Layer" #FIXME Use a warning message for this
+            #Empty group, or group without visible layers
+            print "No visible layers within the selected group" #FIXME Use a warning message for this
 
 
     def sendMap(self):
