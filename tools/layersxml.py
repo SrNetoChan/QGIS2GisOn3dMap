@@ -23,7 +23,7 @@
 
 from qgis.core import *
 
-import lxml.etree as ET
+import xml.etree.ElementTree as ET
 import re
 import utils, config
 
@@ -89,7 +89,7 @@ def get_layer_legend(layer):
         # FIXME::Need to add labels
 
         # prepare xml string for output
-        xml_string = ET.tostring(layer_legend, pretty_print=False, xml_declaration=True, encoding='utf 8')
+        xml_string = ET.tostring(layer_legend, encoding='utf 8')
         # Remove inconvenient end of line
         xml_string = xml_string.replace('\n', '')
         return xml_string

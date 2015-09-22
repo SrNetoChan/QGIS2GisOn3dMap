@@ -25,7 +25,7 @@ import os, re
 
 from PyQt4 import QtGui, uic
 
-from lxml import etree as ET
+import xml.etree.ElementTree as ET
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'gison3dmap_dialog_base.ui'))
