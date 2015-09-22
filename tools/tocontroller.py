@@ -34,9 +34,14 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
     # FIXME:: Try connect, if connection not available inform the user
     s.connect(ip_port)
 
-    for message in messages:
-        s.send(message+'\n')
-        print 'CMD: ', message
+    try:
+        for message in messages:
+            message = (message + '\n').encode('utf-8')
+            s.send(message + '\n')
+            print 'CMD: ', message
+    except:
+        print "The were some problem with the message"
+
     s.close()
 
 # Tests
