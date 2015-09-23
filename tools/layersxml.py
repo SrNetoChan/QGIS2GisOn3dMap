@@ -89,9 +89,10 @@ def get_layer_legend(layer):
         # FIXME::Need to add labels
 
         # prepare xml string for output
-        xml_string = ET.tostring(layer_legend, encoding='utf 8')
+        xml_string = ET.tostring(layer_legend,encoding='UTF-8')
         # Remove inconvenient end of line
         xml_string = xml_string.replace('\n', '')
+        xml_string = xml_string.decode('UTF-8')
         return xml_string
 
 

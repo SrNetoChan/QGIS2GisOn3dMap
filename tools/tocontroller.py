@@ -36,11 +36,10 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
 
     try:
         for message in messages:
-            message = (message + '\n').encode('utf-8')
-            s.send(message + '\n')
+            s.send((message + u'\n').encode('UTF-8'))
             print 'CMD: ', message
     except:
-        print "The were some problem with the message"
+        print "The were UnicodeDecodeErros within the message"
 
     s.close()
 
