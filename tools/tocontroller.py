@@ -21,7 +21,10 @@
  ***************************************************************************/
 """
 
-import socket
+import socket, config, datetime
+
+# Get current settings from the config module
+cfg = config.shared
 
 def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
     """
@@ -32,16 +35,37 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # FIXME:: Try connect, if connection not available inform the user
-    s.connect(ip_port)
+    if cfg.log:
+        f = open(cfg.log_path,'a+')
+        print f
 
     try:
+        s.connect(ip_port)
         for message in messages:
-            s.send((message + u'\n').encode('UTF-8'))
-            print 'CMD: ', message
-    except:
-        print "The were UnicodeDecodeErros within the message"
+            message = (message + u'\n').encode('UTF-8')
+            s.send(message)
+            report(f,'CMD: '+ message)
 
-    s.close()
+    except UnicodeDecodeError as e:
+        error_msg = u"UnicodeDecodeError: %s \n" % str(e)
+        report(f,error_msg)
+
+    except socket.error as e:
+        error_msg = u"Socket Error: %s \n" % str(e)
+        print error_msg
+        report(f,error_msg)
+
+    finally:
+        s.close()
+        if cfg.log:
+            f.close()
+
+
+def report(file,message):
+    if cfg.log:
+        now = datetime.datetime.now()
+        file.write(now.strftime('%Y-%m-%d %H:%M:%S ') + message)
+    print message
 
 # Tests
 if __name__ == '__main__':
