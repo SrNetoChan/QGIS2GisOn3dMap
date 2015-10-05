@@ -88,12 +88,13 @@ def get_layer_legend(layer):
             set_label(label_layer, layer.name(), label_settings)
         # FIXME::Need to add labels
 
-        # prepare xml string for output
-        xml_string = ET.tostring(layer_legend,encoding='UTF-8')
-        # Remove inconvenient end of line
-        xml_string = xml_string.replace('\n', '')
+        # create xml string from etree element and decode it to unicode for further processing
+        xml_string = ET.tostring(layer_legend, encoding='UTF-8')
         xml_string = xml_string.decode('UTF-8')
+        # all elements must be represented in on single line, so remove inconvenient end of line characters
+        xml_string = xml_string.replace('\n', '')
         return xml_string
+
 
 
 def set_legend(legend, alpha_factor, symbol_layer=None):
@@ -161,7 +162,7 @@ def set_break(legend, value_break, layer_alpha):
     alpha_factor = symbol.alpha() * layer_alpha
 
     symbol_layer = symbol.symbolLayers()[0]
-    type = symbol_layer.layerType()
+    layer_type = symbol_layer.layerType()
     properties = symbol_layer.properties()
 
     # Create a new break sub-element in legend
@@ -170,14 +171,14 @@ def set_break(legend, value_break, layer_alpha):
     # setting default values
     color = ''
     line_color = ''
-    if type == 'SimpleMarker' or type == 'SimpleFill':
+    if layer_type == 'SimpleMarker' or layer_type == 'SimpleFill':
         if properties['style'] != 'no':
             color = utils.rgba2argb(properties['color'],alpha_factor)
         if properties['outline_style'] != 'no':
             line_color = utils.rgba2argb(properties['outline_color'],alpha_factor)
         line_width = properties['outline_width']
 
-    elif type == 'SimpleLine':
+    elif layer_type == 'SimpleLine':
         if properties['line_style'] != 'no':
             line_color = utils.rgba2argb(properties['line_color'],alpha_factor)
         line_width = properties['line_width']
@@ -192,19 +193,21 @@ def set_break(legend, value_break, layer_alpha):
     legend_break.set('OutlineEndColor', line_color)
     legend_break.set('OutlineStartColor', line_color)
 
-    # Check if value_break has a single value or a lower and upper one
-    # This is the only difference between ranges and categories
+    # Check if value_break has a single value or a lower and upper value
+    # This is the only difference between graduated ranges and categorized categories
     try:
+        # This will run for graduated layers
         legend_break.set('StartText', "{:.9f}".format(value_break.lowerValue()))
         legend_break.set('EndText', "{:.9f}".format(value_break.upperValue()))
-    except:
-
-        # Convert to string in case of non string values
+    except AttributeError:
+        # This will run for categorized layers
         value = value_break.value()
+        # Convert to string in case of non string values
         if not isinstance(value, basestring):
-            value = str(value)
+            value = unicode(value)
         legend_break.set('StartText', value) # FIXME::Must check if values are always strings
         legend_break.set('EndText', value)
+
     legend_break.set('Rotulo', value_break.label())
     legend_break.set('Imagem', '')
     legend_break.set('Width', str(utils.mm2px(line_width)))
@@ -293,10 +296,10 @@ def define_layer(layer):
     # If layer is vectorlayer get storage type
     if layer.type() == layer.VectorLayer:
         # provider_type = provider.storageType() #FIXME:: Make it work for other providers
-        provider_type = 'SHP' # Hardcoded for shapefile only
-        result = layer_name + ',' + provider_type + ',' + source
+        provider_type = u'SHP' # Hardcoded for shapefile only
+        result = layer_name + u',' + provider_type + ',' + source
     else:
-        result = layer_name + ',' + source
+        result = layer_name + u',' + source
 
     return result
 
@@ -304,7 +307,7 @@ def define_layer(layer):
 def get_layer_filter(layer):
     subset_string = layer.dataProvider().subsetString()
     if len(subset_string) == 0:
-        return ',1=1'
+        return u',1=1'
     else:
         # Convert subset_string to gison3dmap syntax
         # replace double quotes by square brackets
@@ -312,6 +315,6 @@ def get_layer_filter(layer):
         p = re.compile(r'"(.*?)"')
         s = p.sub(r'[\1]',s)
 
-        s = s.replace("'" , '"')
-        s = s.replace('!=' , '<>')
-        return ',' + s
+        s = s.replace("'" , u'"')
+        s = s.replace('!=' , u'<>')
+        return u',' + s

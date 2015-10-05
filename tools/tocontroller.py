@@ -34,26 +34,28 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
     Configurated Socket connection
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(5.0)
     # FIXME:: Try connect, if connection not available inform the user
     if cfg.log:
+        global f
         f = open(cfg.log_path,'a+')
-        print f
 
     try:
         s.connect(ip_port)
         for message in messages:
-            message = (message + u'\n').encode('UTF-8')
+            message = (message)  + u'\n'
             s.send(message)
-            report(f,'CMD: '+ message)
+            report(u'CMD: '+ message)
 
     except UnicodeDecodeError as e:
         error_msg = u"UnicodeDecodeError: %s \n" % str(e)
-        report(f,error_msg)
+        print error_msg
+        report(error_msg)
 
     except socket.error as e:
         error_msg = u"Socket Error: %s \n" % str(e)
         print error_msg
-        report(f,error_msg)
+        report(error_msg)
 
     finally:
         s.close()
@@ -61,10 +63,15 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
             f.close()
 
 
-def report(file,message):
+def report(message):
+    """
+    :param message: string
+    :return:
+    """
     if cfg.log:
         now = datetime.datetime.now()
-        file.write(now.strftime('%Y-%m-%d %H:%M:%S ') + message)
+        log_line = now.strftime('%Y-%m-%d %H:%M:%S ') + message
+        f.write(log_line.encode('UTF-8'))
     print message
 
 # Tests
