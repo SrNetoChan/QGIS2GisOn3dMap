@@ -223,7 +223,7 @@ class gison3dmap:
             commands = list()
 
             if self.cfg.clear_before_draw_map:
-                commands.append('CLEAR')
+                commands.append(u'CLEAR')
 
             # Try to get the legend form layer
             layer_legend = get_layer_legend(layer)
@@ -241,11 +241,11 @@ class gison3dmap:
                 s_color = utils.rgba2argb(s_color,1.0)
                 layer_legend = re.sub(r'\d{1,3},\d{1,3},\d{1,3},\d{1,3}', s_color, layer_legend)
 
-                commands.append('DEFINELAYER ' + define_layer(layer))
-                commands.append('LEGEND ' + layer_legend)
-                commands.append('LAYERID ' + layer.name() + "," + ids_str)
+                commands.append(u'DEFINELAYER ' + define_layer(layer))
+                commands.append(u'LEGEND ' + layer_legend)
+                commands.append(u'LAYERID ' + layer.name() + "," + ids_str)
 
-            commands.append('DRAW')
+            commands.append(u'DRAW')
 
             if len(commands)>2:
                 tocontroller.send_messages(commands, self.ip_port)
@@ -257,8 +257,7 @@ class gison3dmap:
         pass
 
     def sendLayer(self):
-        """Function to send active layer to gison3dmap"""
-        map_canvas = self.iface.mapCanvas()
+        """Function to send active layer or layer group to gison3dmap"""
         tree_view = self.iface.layerTreeView()
         current_node = tree_view.currentNode()
 
@@ -277,35 +276,34 @@ class gison3dmap:
         else:
             group_layers = None
 
-        print group_layers
 
         #FIXME:: Make Button inactive if not layer and remove that test from here
         if len(group_layers) > 0:
             commands = list()
 
             if self.cfg.clear_before_draw_map:
-                commands.append('CLEAR')
+                commands.append(u'CLEAR')
 
             for layer in group_layers[::-1]: # [::-1] is used to reverse the order of layers to project
                 # Try to get the legend form layer
-                try:
-                    layer_legend = get_layer_legend(layer)
-                except:
-                    layer_legend = None
+                #try:
+                layer_legend = get_layer_legend(layer)
+                #except:
+                #    layer_legend = None
 
                 if layer.type() == layer.VectorLayer and layer_legend:
-                    commands.append('DEFINELAYER ' + define_layer(layer))
-                    commands.append('LEGEND ' + layer_legend)
-                    commands.append('LAYERSQL ' + layer.name() + get_layer_filter(layer))
+                    commands.append(u'DEFINELAYER ' + define_layer(layer))
+                    commands.append(u'LEGEND ' + layer_legend)
+                    commands.append(u'LAYERSQL ' + layer.name() + get_layer_filter(layer))
 
                 elif layer.type() == layer.RasterLayer:
-                    commands.append('DEFINELAYER ' + define_layer(layer))
-                    commands.append('GRID ' + layer.name())
+                    commands.append(u'DEFINELAYER ' + define_layer(layer))
+                    commands.append(u'GRID ' + layer.name())
 
                 else:
                     print "Invalid renderer for layer : ", layer.name() #FIXME:: Use a warning message for this
 
-            commands.append('DRAW')
+            commands.append(u'DRAW')
 
             tocontroller.send_messages(commands, self.ip_port)
 
@@ -321,7 +319,7 @@ class gison3dmap:
         commands = list()
 
         if self.cfg.clear_before_draw_map:
-            commands.append('CLEAR')
+            commands.append(u'CLEAR')
 
         # Since last defined layer will be projected above the other, we need to iterate the
         # Visible layer at the inverse order,i.e., bottom to top. That's why [::-1] was used
@@ -329,21 +327,21 @@ class gison3dmap:
             try:
                 layer_legend = get_layer_legend(layer)
             except:
-                layer_legend = None
+                layer_legend = None #FIXME:: To brode error
 
             if layer.type() == layer.VectorLayer and layer_legend:
-                commands.append('DEFINELAYER ' + define_layer(layer))
-                commands.append('LEGEND ' + layer_legend)
-                commands.append('LAYERSQL ' + layer.name() + get_layer_filter(layer))
+                commands.append(u'DEFINELAYER ' + define_layer(layer))
+                commands.append(u'LEGEND ' + layer_legend)
+                commands.append(u'LAYERSQL ' + layer.name() + get_layer_filter(layer))
 
             elif layer.type() == layer.RasterLayer:
-                commands.append('DEFINELAYER ' + define_layer(layer))
-                commands.append('GRID ' + layer.name())
+                commands.append(u'DEFINELAYER ' + define_layer(layer))
+                commands.append(u'GRID ' + layer.name())
 
             else:
                 print "Could not project layer: ", layer.name()
 
-        commands.append('DRAW')
+        commands.append(u'DRAW')
 
         # Check if list of commands are more that just CLEAR and DRAW and a DEFINE LAYER
         # Meaning that there are no valid layers to project
@@ -357,7 +355,7 @@ class gison3dmap:
         Function to clear all layers from gison3dmap
         """
 
-        commands = ['CLEAR','DRAW']
+        commands = [u'CLEAR',u'DRAW']
         tocontroller.send_messages(commands, self.ip_port)
 
     def sendCommands(self):

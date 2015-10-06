@@ -33,32 +33,31 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
     The function iterate the list of strings and send them to the
     Configurated Socket connection
     """
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(5.0)
-    # FIXME:: Try connect, if connection not available inform the user
+
     if cfg.log:
         global f
         f = open(cfg.log_path,'a+')
 
-    try:
-        s.connect(ip_port)
-        for message in messages:
-            message = (message)  + u'\n'
-            s.send(message)
+    for message in messages:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(5.0)
+        try:
+            s.connect(ip_port)
+            s.send(message.encode('utf-16'))
             report(u'CMD: '+ message)
+        except UnicodeDecodeError as e:
+            error_msg = u"UnicodeDecodeError: %s \n" % str(e)
+            print error_msg
+            report(error_msg)
 
-    except UnicodeDecodeError as e:
-        error_msg = u"UnicodeDecodeError: %s \n" % str(e)
-        print error_msg
-        report(error_msg)
+        except socket.error as e:
+            error_msg = u"Socket Error: %s \n" % str(e)
+            print error_msg
+            report(error_msg)
 
-    except socket.error as e:
-        error_msg = u"Socket Error: %s \n" % str(e)
-        print error_msg
-        report(error_msg)
+        finally:
+            s.close()
 
-    finally:
-        s.close()
         if cfg.log:
             f.close()
 
@@ -77,16 +76,16 @@ def report(message):
 # Tests
 if __name__ == '__main__':
 
-    TCP_IP = "192.168.1.69"
+    TCP_IP = "192.168.56.1"
     TCP_PORT = 9991
     BUFFER_SIZE = 256
-    MESSAGE = "DRAW"
+    MESSAGE = u'traço'.encode('utf-16')
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((TCP_IP, TCP_PORT))
     s.send(MESSAGE)
 
-    data = s.recv(BUFFER_SIZE)
-    print "received data:", data
+    #data = s.recv(BUFFER_SIZE)
+    #print "received data:", data
     s.close()
 
