@@ -36,7 +36,12 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
 
     if cfg.log:
         global f
-        f = open(cfg.log_path,'a+')
+
+        #Compose filename from current date
+        now = datetime.datetime.now()
+        file_name = now.strftime('%Y-%m-%d.txt')
+        
+        f = open(cfg.log_path + file_name,'a+')
 
     for message in messages:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -67,7 +72,7 @@ def report(message):
     """
     if cfg.log:
         now = datetime.datetime.now()
-        log_line = now.strftime('%Y-%m-%d %H:%M:%S ') + message
+        log_line = now.strftime('%H:%M:%S ') + message + '\n'
         f.write(log_line.encode('UTF-8'))
 
     # Try print commands into th console. Usefull for commands debugging
