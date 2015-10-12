@@ -47,19 +47,17 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
             report(u'CMD: '+ message)
         except UnicodeDecodeError as e:
             error_msg = u"UnicodeDecodeError: %s \n" % str(e)
-            print error_msg
             report(error_msg)
 
         except socket.error as e:
             error_msg = u"Socket Error: %s \n" % str(e)
-            print error_msg
             report(error_msg)
 
         finally:
             s.close()
 
-        if cfg.log:
-            f.close()
+    if cfg.log:
+        f.close()
 
 
 def report(message):
@@ -71,7 +69,12 @@ def report(message):
         now = datetime.datetime.now()
         log_line = now.strftime('%Y-%m-%d %H:%M:%S ') + message
         f.write(log_line.encode('UTF-8'))
-    print message
+
+    # Try print commands into th console. Usefull for commands debugging
+    try:
+        print message
+    except:
+        pass
 
 # Tests
 if __name__ == '__main__':
