@@ -56,6 +56,7 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
         # UI CONNECTORS
         self.addPushButton.clicked.connect(self.addFilemapRow)
         self.deletePushButton.clicked.connect(self.deleteFilemapRows)
+        self.pathBrowsePushButton.clicked.connect(self.browseLogPath)
 
     def settingsToDialog(self):
         self.controller.setText(self.cfg.controller)
@@ -148,3 +149,15 @@ class configDialog(QtGui.QDialog, FORM_CLASS):
             return None
         else:
             return temp_array
+
+    def browseLogPath(self):
+        #open the system open directory dialog
+        input_path = QtGui.QFileDialog.getExistingDirectory(self,'Escolha uma directoria')
+
+        if input_path:
+            #Ok was pressed, update path
+            self.log_path.setText(input_path)
+            print "Directoria escolhida: ", input_path
+        else:
+            #cancel was pressed, keep path
+            pass

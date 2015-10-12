@@ -30,7 +30,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../../../../home/alexandre/Dropbox/Trabalho/QGIS/Plugins-QGIS/gison3dmap/icons/cmdConfig.png</normaloff>../../../../../../../../home/alexandre/Dropbox/Trabalho/QGIS/Plugins-QGIS/gison3dmap/icons/cmdConfig.png</iconset>
+    <normaloff>../../../../../../../../../home/alexandre/Dropbox/Trabalho/QGIS/Plugins-QGIS/gison3dmap/icons/cmdConfig.png</normaloff>../../../../../../../../../home/alexandre/Dropbox/Trabalho/QGIS/Plugins-QGIS/gison3dmap/icons/cmdConfig.png</iconset>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
@@ -85,19 +85,6 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="locale">
-         <locale language="Portuguese" country="Portugal"/>
-        </property>
-        <property name="text">
-         <string>Pasta de registo</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="log_path"/>
-      </item>
       <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="log">
         <property name="locale">
@@ -110,6 +97,9 @@
       </item>
       <item row="1" column="0" colspan="2">
        <widget class="QCheckBox" name="log_erros">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="locale">
          <locale language="Portuguese" country="Portugal"/>
         </property>
@@ -118,11 +108,35 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="log_path"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="locale">
+         <locale language="Portuguese" country="Portugal"/>
+        </property>
+        <property name="text">
+         <string>Pasta de registo</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="pathBrowsePushButton">
+        <property name="text">
+         <string>Procurar...</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item row="6" column="1">
-    <widget class="QLineEdit" name="host_multimedia"/>
+    <widget class="QLineEdit" name="host_multimedia">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0" colspan="3">
     <widget class="QCheckBox" name="clear_before_draw_map">
@@ -138,7 +152,11 @@
     </widget>
    </item>
    <item row="6" column="2">
-    <widget class="QComboBox" name="display_multimedia"/>
+    <widget class="QComboBox" name="display_multimedia">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item row="13" column="0" colspan="3">
     <widget class="QDialogButtonBox" name="button_box">
@@ -165,6 +183,9 @@
    </item>
    <item row="6" column="0">
     <widget class="QLabel" name="label_4">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="locale">
       <locale language="Portuguese" country="Portugal"/>
      </property>

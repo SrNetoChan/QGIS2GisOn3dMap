@@ -21,7 +21,7 @@
  ***************************************************************************/
 """
 
-import socket, config, datetime
+import socket, config, datetime, os
 
 # Get current settings from the config module
 cfg = config.shared
@@ -40,8 +40,8 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
         #Compose filename from current date
         now = datetime.datetime.now()
         file_name = now.strftime('%Y-%m-%d.txt')
-        
-        f = open(cfg.log_path + file_name,'a+')
+
+        f = open(os.path.join(cfg.log_path,file_name),'a+')
 
     for message in messages:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
