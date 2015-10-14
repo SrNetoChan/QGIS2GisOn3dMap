@@ -49,13 +49,13 @@ def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
         try:
             s.connect(ip_port)
             s.send(message.encode('utf-16'))
-            report(u'CMD: '+ message)
+            report(message)
         except UnicodeDecodeError as e:
-            error_msg = u"UnicodeDecodeError: %s \n" % str(e)
+            error_msg = u"UnicodeDecodeError: %s" % str(e)
             report(error_msg)
 
         except socket.error as e:
-            error_msg = u"Socket Error: %s \n" % str(e)
+            error_msg = u"Socket Error: %s" % str(e)
             report(error_msg)
 
         finally:
@@ -71,8 +71,7 @@ def report(message):
     :return:
     """
     if cfg.log:
-        now = datetime.datetime.now()
-        log_line = now.strftime('%H:%M:%S ') + message + '\n'
+        log_line = message + '\n'
         f.write(log_line.encode('UTF-8'))
 
     # Try print commands into th console. Usefull for commands debugging
