@@ -294,7 +294,7 @@ class gison3dmap:
                 if layer.type() == layer.VectorLayer and layer_legend:
                     commands.append(u'DEFINELAYER ' + define_layer(layer))
                     commands.append(u'LEGEND ' + layer_legend)
-                    commands.append(u'LAYERSQL ' + layer.name() + get_layer_filter(layer))
+                    commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
 
                 elif layer.type() == layer.RasterLayer:
                     commands.append(u'DEFINELAYER ' + define_layer(layer))
@@ -332,7 +332,7 @@ class gison3dmap:
             if layer.type() == layer.VectorLayer and layer_legend:
                 commands.append(u'DEFINELAYER ' + define_layer(layer))
                 commands.append(u'LEGEND ' + layer_legend)
-                commands.append(u'LAYERSQL ' + layer.name() + get_layer_filter(layer))
+                commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
 
             elif layer.type() == layer.RasterLayer:
                 commands.append(u'DEFINELAYER ' + define_layer(layer))

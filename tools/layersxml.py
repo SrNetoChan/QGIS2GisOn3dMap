@@ -307,14 +307,14 @@ def define_layer(layer):
 def get_layer_filter(layer):
     subset_string = layer.dataProvider().subsetString()
     if len(subset_string) == 0:
-        return u',1=1'
+        return u'1=1'
     else:
         # Convert subset_string to gison3dmap syntax
         # replace double quotes by square brackets
         s = subset_string
         p = re.compile(r'"(.*?)"')
-        s = p.sub(r'[\1]',s)
+        s = p.sub(r'[\1]', s)
 
         s = s.replace("'" , u'"')
         s = s.replace('!=' , u'<>')
-        return u',' + s
+        return s
