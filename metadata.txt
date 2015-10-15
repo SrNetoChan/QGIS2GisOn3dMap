@@ -10,7 +10,7 @@
 name=gison3dmap
 qgisMinimumVersion=2.10
 description=QGIS Client for gison3dmap system. Allows the projection of QGIS layers into a physical terrain model
-version=0.2.1
+version=0.2.2
 author=Alexandre Neto (for CCC Geomática)
 email=alex.f.neto@gmail.com
 
@@ -20,6 +20,8 @@ email=alex.f.neto@gmail.com
 
 # Uncomment the following line and add your changelog:
 changelog=
+   0.2.2 - Fixes host not being update after it's changed in configuration dialog
+         - Added toolbar buttons behavior
    0.2.1 - Bug fixes
          - New dialog for browsing log path folder
    0.2.0 - Fixed encoding problems

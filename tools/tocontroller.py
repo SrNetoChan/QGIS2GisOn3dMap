@@ -26,13 +26,14 @@ import socket, config, datetime, os
 # Get current settings from the config module
 cfg = config.shared
 
-def send_messages(messages=[], ip_port=('127.0.0.1',9991)):
+def send_messages(messages=[]):
     """
     messages is a list of strings
     ip_port is a tupple composed by string (ip) and a integer (port)
     The function iterate the list of strings and send them to the
     Configurated Socket connection
     """
+    ip_port = (cfg.controller,9991)
 
     if cfg.log:
         global f

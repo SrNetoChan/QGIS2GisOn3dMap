@@ -79,9 +79,6 @@ class gison3dmap:
         # Save reference from shared configuration instance
         self.cfg = config.shared
 
-        # Declare Constants FIXME:: Read it from settings
-        self.ip_port = (self.cfg.controller,9991)
-
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -312,7 +309,7 @@ class gison3dmap:
             commands.append(u'DRAW')
 
             if len(commands)>2:
-                tocontroller.send_messages(commands, self.ip_port)
+                tocontroller.send_messages(commands)
             else:
                 print "Invalid renderer for layer : ", layer.name()
         else:
@@ -368,7 +365,7 @@ class gison3dmap:
 
             commands.append(u'DRAW')
 
-            tocontroller.send_messages(commands, self.ip_port)
+            tocontroller.send_messages(commands)
 
         else:
             #Empty group, or group without visible layers
@@ -408,7 +405,7 @@ class gison3dmap:
         # Check if list of commands are more that just CLEAR and DRAW and a DEFINE LAYER
         # Meaning that there are no valid layers to project
         if len(commands)>2:
-            tocontroller.send_messages(commands, self.ip_port)
+            tocontroller.send_messages(commands)
         else:
             print "No valid layers to print"
 
@@ -418,7 +415,7 @@ class gison3dmap:
         """
 
         commands = [u'CLEAR',u'DRAW']
-        tocontroller.send_messages(commands, self.ip_port)
+        tocontroller.send_messages(commands)
 
     def sendCommands(self):
         """Function to send single commands to gison3dmap"""
@@ -430,7 +427,7 @@ class gison3dmap:
         if self.send_commands_dlg.exec_():
             command = self.send_commands_dlg.comboBox.currentText()
             commands = [command]
-            tocontroller.send_messages(commands, self.ip_port)
+            tocontroller.send_messages(commands)
 
     def configuration(self):
         """Function to execute configuration dialog"""
