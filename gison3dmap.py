@@ -45,7 +45,10 @@ class gison3dmap:
         :type iface: QgsInterface
         """
         # Save reference to the QGIS interface
+        # and other elements
         self.iface = iface
+        self.canvas = self.iface.mapCanvas()
+        self.tree_view = self.iface.layerTreeView()
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
@@ -69,7 +72,7 @@ class gison3dmap:
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&gison3dmap')
-        # TODO: We are going to let the user set this up in a future iteration
+
         self.toolbar = self.iface.addToolBar(u'gison3dmap')
         self.toolbar.setObjectName(u'gison3dmap')
 
@@ -171,23 +174,24 @@ class gison3dmap:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/gison3dmap/icon.png'
-        # FIXME: Get new icons for buttons
-        self.add_action(
+        self.send_Selection_action = self.add_action(
             ':/plugins/gison3dmap/icons/cmdAddSelection.png',
             text=self.tr(u'Seleção'),
             callback=self.sendSelection,
-            parent=self.iface.mainWindow())
-        self.add_action(
+            parent=self.iface.mainWindow(),
+            enabled_flag=False)
+        self.send_Layer_action = self.add_action(
             ':/plugins/gison3dmap/icons/cmdAddLayer.png',
-            text=self.tr(u'Camada'),
+            text=self.tr(u'Camada ou Grupo'),
             callback=self.sendLayer,
-            parent=self.iface.mainWindow())
-        self.add_action(
+            parent=self.iface.mainWindow(),
+            enabled_flag=False)
+        self.send_Map_action = self.add_action(
             ':/plugins/gison3dmap/icons/cmdAllLayers.png',
             text=self.tr(u'Mapa'),
             callback=self.sendMap,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+            enabled_flag=False)
         self.add_action(
             ':/plugins/gison3dmap/icons/cmdClear.png',
             text=self.tr(u'Limpar'),
@@ -204,6 +208,11 @@ class gison3dmap:
             callback=self.configuration,
             parent=self.iface.mainWindow())
 
+        # connect signals for button behavior
+        self.iface.currentLayerChanged["QgsMapLayer *"].connect(self.toggle)
+        self.canvas.selectionChanged.connect(self.toggle)
+        self.canvas.mapCanvasRefreshed.connect(self.toggle)
+
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -214,10 +223,65 @@ class gison3dmap:
         # remove the toolbar
         del self.toolbar
 
+    def toggle(self):
+        """
+        function to activate or deactivate the plugin buttons
+        :return:
+        """
+        # disconnect all previously connect signals of the node
+        try:
+            self.current_node.visibilityChanged.disconnect(self.toggle)
+        except:
+            pass
+
+        # get current active node
+        self.current_node = self.tree_view.currentNode()
+
+        if self.current_node is None:
+            #No node is selected disable selection and layer buttons
+            self.send_Selection_action.setEnabled(False)
+            self.send_Layer_action.setEnabled(False)
+
+        elif self.current_node.nodeType() == 1:
+            #In this case the node is a QgsLayerTree
+            layer = self.current_node.layer()
+
+            # Check if it is possible to use selection command
+            if layer.type() == layer.VectorLayer and layer.selectedFeatureCount() > 0:
+                self.send_Selection_action.setEnabled(True)
+            else:
+                self.send_Selection_action.setEnabled(False)
+
+            self.send_Layer_action.setEnabled(True)
+
+        elif self.current_node.nodeType() == 0:
+            #In this case the node is a QgsLayerGroup
+            self.send_Selection_action.setEnabled(False)
+
+            # Check if there are visible layers on the current node
+            visible = False
+            for layer in self.current_node.findLayers():
+                if layer.isVisible():
+                    visible = True
+                    break
+
+            if visible:
+                self.send_Layer_action.setEnabled(True)
+            else:
+                self.send_Layer_action.setEnabled(False)
+
+            # Create a slot waiting for visibility changes on any child layer in the node
+            self.current_node.visibilityChanged.connect(self.toggle)
+
+        # See if there are any visible layers on the map canvas
+        if self.canvas.layerCount() > 0:
+            self.send_Map_action.setEnabled(True)
+        else:
+            self.send_Map_action.setEnabled(False)
+
     def sendSelection(self):
         """Function to send selected features on the active layer to gison3dmap"""
-        map_canvas = self.iface.mapCanvas()
-        layer = map_canvas.currentLayer()
+        layer = self.canvas.currentLayer()
 
         if layer.type() == layer.VectorLayer and layer.selectedFeatureCount()>0:
             commands = list()
@@ -236,7 +300,7 @@ class gison3dmap:
                 ids_str = ",".join(map(str,ids))
 
                 # Replace all colors in legend by project selection color
-                qcolor = map_canvas.mapSettings().selectionColor()
+                qcolor = self.canvas.mapSettings().selectionColor()
                 s_color = ",".join(map(str,qcolor.getRgb()))
                 s_color = utils.rgba2argb(s_color,1.0)
                 layer_legend = re.sub(r'\d{1,3},\d{1,3},\d{1,3},\d{1,3}', s_color, layer_legend)
@@ -258,8 +322,7 @@ class gison3dmap:
 
     def sendLayer(self):
         """Function to send active layer or layer group to gison3dmap"""
-        tree_view = self.iface.layerTreeView()
-        current_node = tree_view.currentNode()
+        current_node = self.tree_view.currentNode()
 
         if current_node.nodeType() == 1:
             #In this case the node is a QgsLayerTree
@@ -314,8 +377,7 @@ class gison3dmap:
 
     def sendMap(self):
         """Function to send all visible layers to gison3dmap"""
-        map_canvas = self.iface.mapCanvas()
-        visible_layers = map_canvas.layers()
+        visible_layers = self.canvas.layers()
         commands = list()
 
         if self.cfg.clear_before_draw_map:
