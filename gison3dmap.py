@@ -336,40 +336,32 @@ class gison3dmap:
         else:
             group_layers = None
 
+        commands = list()
 
-        #FIXME:: Make Button inactive if not layer and remove that test from here
-        if len(group_layers) > 0:
-            commands = list()
+        if self.cfg.clear_before_draw_map:
+            commands.append(u'CLEAR')
 
-            if self.cfg.clear_before_draw_map:
-                commands.append(u'CLEAR')
-
-            for layer in group_layers[::-1]: # [::-1] is used to reverse the order of layers to project
-                # Try to get the legend form layer
-                #try:
+        for layer in group_layers[::-1]: # [::-1] is used to reverse the order of layers to project
+            # Try to get the legend form layer
+            try:
                 layer_legend = get_layer_legend(layer)
-                #except:
-                #    layer_legend = None
+            except:
+                layer_legend = None
 
-                if layer.type() == layer.VectorLayer and layer_legend:
-                    commands.append(u'DEFINELAYER ' + define_layer(layer))
-                    commands.append(u'LEGEND ' + layer_legend)
-                    commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
+            if layer.type() == layer.VectorLayer and layer_legend:
+                commands.append(u'DEFINELAYER ' + define_layer(layer))
+                commands.append(u'LEGEND ' + layer_legend)
+                commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
 
-                elif layer.type() == layer.RasterLayer:
-                    commands.append(u'DEFINELAYER ' + define_layer(layer))
-                    commands.append(u'GRID ' + layer.name())
-
-                else:
-                    print "Invalid renderer for layer : ", layer.name() #FIXME:: Use a warning message for this
+            elif layer.type() == layer.RasterLayer:
+                commands.append(u'DEFINELAYER ' + define_layer(layer))
+                commands.append(u'GRID ' + layer.name())
+            else:
+                print "Invalid renderer for layer : ", layer.name() #FIXME:: Use a warning message for this
 
             commands.append(u'DRAW')
 
             tocontroller.send_messages(commands)
-
-        else:
-            #Empty group, or group without visible layers
-            print "No visible layers within the selected group" #FIXME Use a warning message for this
 
 
     def sendMap(self):
