@@ -83,8 +83,10 @@ class gison3dmapDialog(QtGui.QDialog, FORM_CLASS):
             key = m.group(1).upper()
             # If command string matches one of the dictionary key show syntax text
             if key in self.commands_dict:
-                # FIXME::newlines inside string are not considered
-                text = u"{0}\n\nParâmetros:\n{1}".format(self.commands_dict[key][0], self.commands_dict[key][1])
+                # Note: using decode('string_escape') to force escape characters incstring to be
+                # used as if they were in a string literal
+                text = u"{0}\n\nParâmetros:\n{1}".format(self.commands_dict[key][0].decode('string_escape'),
+                                                         self.commands_dict[key][1].decode('string_escape'))
             else:
                 text = ''
         else:
