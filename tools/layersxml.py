@@ -119,19 +119,28 @@ def set_legend(legend, alpha_factor, symbol_layer=None):
         layer_type = symbol_layer.layerType()
         properties = symbol_layer.properties()
 
-        if layer_type == 'SimpleMarker' or layer_type == 'SimpleFill':
-            try:
-                if properties['style'] != 'no':
-                    legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
+        if layer_type == 'SimpleFill':
+            if properties['style'] != 'no':
+                legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
 
-                if properties['style'] not in ('solid','no'):
-                    legend.set('EnableHatch', 'True')
-                    legend.set('Hatch', '0') # FIXME:: Hatchs in QGIS are different from gison3dmap
-            except:
-                pass
+            if properties['style'] not in ('solid','no'):
+                legend.set('EnableHatch', 'True')
+                legend.set('Hatch', '0') # FIXME:: Hatchs in QGIS are different from gison3dmap
+
             if properties['outline_style'] != 'no':
                 legend.set('LineColor', utils.rgba2argb(properties['outline_color'],alpha_factor))
+
             legend.set('Width', utils.mm2px(properties['outline_width']))
+            legend.set('DashPattern', '')  # ??
+
+        elif layer_type == 'SimpleMarker':
+            print properties
+            legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
+
+            if properties['outline_style'] != 'no':
+                legend.set('LineColor', utils.rgba2argb(properties['outline_color'],alpha_factor))
+
+            legend.set('Width', utils.mm2px(properties['size']))
             legend.set('DashPattern', '')  # ??
 
         elif layer_type == 'SimpleLine':

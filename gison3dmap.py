@@ -280,42 +280,37 @@ class gison3dmap:
         """Function to send selected features on the active layer to gison3dmap"""
         layer = self.canvas.currentLayer()
 
-        if layer.type() == layer.VectorLayer and layer.selectedFeatureCount()>0:
-            commands = list()
+        commands = list()
 
-            if self.cfg.clear_before_draw_map:
-                commands.append(u'CLEAR')
+        if self.cfg.clear_before_draw_map:
+            commands.append(u'CLEAR')
 
-            # Try to get the legend form layer
-            layer_legend = get_layer_legend(layer)
+        # Try to get the legend form layer
+        layer_legend = get_layer_legend(layer)
 
-            if layer_legend:
-                # Get IDs from selected Features
-                ids = layer.selectedFeaturesIds()
-                ids = [id + 1 for id in ids]
-                #convert the list to a string to use in LAYERID command
-                ids_str = ",".join(map(str,ids))
+        if layer_legend:
+            # Get IDs from selected Features
+            ids = layer.selectedFeaturesIds()
+            ids = [id + 1 for id in ids]
+            #convert the list to a string to use in LAYERID command
+            ids_str = ",".join(map(str,ids))
 
-                # Replace all colors in legend by project selection color
-                qcolor = self.canvas.mapSettings().selectionColor()
-                s_color = ",".join(map(str,qcolor.getRgb()))
-                s_color = utils.rgba2argb(s_color,1.0)
-                layer_legend = re.sub(r'\d{1,3},\d{1,3},\d{1,3},\d{1,3}', s_color, layer_legend)
+            # Replace all colors in legend by project selection color
+            qcolor = self.canvas.mapSettings().selectionColor()
+            s_color = ",".join(map(str,qcolor.getRgb()))
+            s_color = utils.rgba2argb(s_color,1.0)
+            layer_legend = re.sub(r'\d{1,3},\d{1,3},\d{1,3},\d{1,3}', s_color, layer_legend)
 
-                commands.append(u'DEFINELAYER ' + define_layer(layer))
-                commands.append(u'LEGEND ' + layer_legend)
-                commands.append(u'LAYERID ' + layer.name() + "," + ids_str)
+            commands.append(u'DEFINELAYER ' + define_layer(layer))
+            commands.append(u'LEGEND ' + layer_legend)
+            commands.append(u'LAYERID ' + layer.name() + "," + ids_str)
 
-            commands.append(u'DRAW')
+        commands.append(u'DRAW')
 
-            if len(commands)>2:
-                tocontroller.send_messages(commands)
-            else:
-                print "Invalid renderer for layer : ", layer.name()
+        if len(commands)>2:
+            tocontroller.send_messages(commands)
         else:
-            print "Please select a Vector or Raster Layer" #FIXME Use a warning message for this
-
-        pass
+            print "Invalid renderer for layer : ", layer.name()
 
     def sendLayer(self):
         """Function to send active layer or layer group to gison3dmap"""
@@ -345,7 +340,7 @@ class gison3dmap:
             # Try to get the legend form layer
             try:
                 layer_legend = get_layer_legend(layer)
-            except:
+            except AttributeError:
                 layer_legend = None
 
             if layer.type() == layer.VectorLayer and layer_legend:
