@@ -21,7 +21,7 @@
  ***************************************************************************/
 """
 
-import os, re
+import os, re, codecs
 
 from PyQt4 import QtGui, uic
 
@@ -85,11 +85,27 @@ class gison3dmapDialog(QtGui.QDialog, FORM_CLASS):
             if key in self.commands_dict:
                 # Note: using decode('string_escape') to force escape characters incstring to be
                 # used as if they were in a string literal
-                text = u"{0}\n\nParâmetros:\n{1}".format(self.commands_dict[key][0].decode('string_escape'),
-                                                         self.commands_dict[key][1].decode('string_escape'))
+                text = u"{0}\n\nParâmetros:\n{1}".format(decode_escapes(self.commands_dict[key][0]),
+                                                         decode_escapes(self.commands_dict[key][1]))
             else:
+
                 text = ''
         else:
             text = ''
         self.textBrowser.setText(text)
 
+
+ESCAPE_SEQUENCE_RE = re.compile(r'''
+    ( \\U........      # 8-digit hex escapes
+    | \\u....          # 4-digit hex escapes
+    | \\x..            # 2-digit hex escapes
+    | \\[0-7]{1,3}     # Octal escapes
+    | \\N\{[^}]+\}     # Unicode characters by name
+    | \\[\\'"abfnrtv]  # Single-character escapes
+    )''', re.UNICODE | re.VERBOSE)
+
+def decode_escapes(s):
+    def decode_match(match):
+        return codecs.decode(match.group(0), 'unicode-escape')
+
+    return ESCAPE_SEQUENCE_RE.sub(decode_match, s)
