@@ -20,6 +20,7 @@ email=alex.f.neto@gmail.com
 
 # Uncomment the following line and add your changelog:
 changelog=
+   0.2.4 - Fix bug in Command dialog
    0.2.3 - Commands Syntax with breaklines
          - Fixes points not rendering
    0.2.2 - Fixes host not being update after it's changed in configuration dialog
