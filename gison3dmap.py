@@ -349,7 +349,7 @@ class gison3dmap:
                 commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
 
             elif layer.type() == layer.RasterLayer:
-                commands.append(u'DEFINELAYER ' + define_layer(layer))
+                commands.append(u'DEFINEGRID ' + layer.name() + ',' + layer_legend)
                 commands.append(u'GRID ' + layer.name())
             else:
                 print "Invalid renderer for layer : ", layer.name() #FIXME:: Use a warning message for this
@@ -381,7 +381,7 @@ class gison3dmap:
                 commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
 
             elif layer.type() == layer.RasterLayer:
-                commands.append(u'DEFINELAYER ' + define_layer(layer))
+                commands.append(u'DEFINEGRID ' + layer.name() + ',' + layer_legend)
                 commands.append(u'GRID ' + layer.name())
 
             else:

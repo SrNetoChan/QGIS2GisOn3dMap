@@ -34,70 +34,126 @@ def get_layer_legend(layer):
     """
     Converts Layer's Symbols and Labels properties to gison3dmap XML
 
-    :param layer: Vector Layer
-    :type layer: QgsVectorLayer
+    :param layer: A non plugin map Layer
+    :type layer: QgsMapLayer
 
     :returns: XML with all needed information about the layer
     :rtype: String
     """
-    renderer = layer.rendererV2()
+    if isinstance(layer,QgsVectorLayer):
 
-    # Check if render is supported by gison3dmap
-    if renderer.type() not in ('singleSymbol', 'categorizedSymbol', 'graduatedSymbol', 'RuleRenderer'):
-        # If renderer is not supported
-        return None
-    else:
-        # Creates basic XML structure
-        layer_legend = ET.Element('LayerLegend')
-        vector_layer_legend = ET.SubElement(layer_legend, 'VectorLayerLegend')
-        legend = ET.SubElement(vector_layer_legend, 'Legend')
+        renderer = layer.rendererV2()
 
-        # Getting layer's transparency to further use in feature's colors
-        layer_alpha = 1.0 - layer.layerTransparency()/100.0
-
-        if renderer.type() == 'singleSymbol':
-            symbol = renderer.symbol()
-            alpha_factor = symbol.alpha() * layer_alpha
-            symbol_layer = symbol.symbolLayers()[0]  # only considers first layer of symbol
-            set_legend(legend, alpha_factor, symbol_layer)
-
-        elif renderer.type() in ('graduatedSymbol', 'categorizedSymbol' ):
-            set_legend(legend, layer_alpha)
-            legend.set('FieldName', renderer.classAttribute())
-
-            if renderer.type() == 'categorizedSymbol':
-                value_breaks = renderer.categories()
-            else:
-                value_breaks = renderer.ranges()
-
-            for value_break in value_breaks:
-                set_break(legend, value_break, layer_alpha)
-
-        # TODO: Add support to RuleRenderer
-        # elif renderer.type() == 'RuleRenderer':
-        #     rule_list = []
-        #     for children in renderer.rootRule().children():
-        #         getRules(rule_list, children)
-        #     rules = rule_list
+        # Check if render is supported by gison3dmap
+        if renderer.type() not in ('singleSymbol', 'categorizedSymbol', 'graduatedSymbol', 'RuleRenderer'):
+            # If renderer is not supported
+            return None
         else:
-            print "This renderer is not supported by gison3dmap"
+            # Creates basic XML structure
+            layer_legend = ET.Element('LayerLegend')
+            vector_layer_legend = ET.SubElement(layer_legend, 'VectorLayerLegend')
+            legend = ET.SubElement(vector_layer_legend, 'Legend')
 
-        if layer.labelsEnabled():
-            label_layer = ET.SubElement(layer_legend, 'LabelLayer')
-            label_settings = QgsPalLayerSettings.fromLayer(layer)
-            set_label(label_layer, layer.name(), label_settings)
-        # FIXME::Need to add labels
+            # Getting layer's transparency to further use in feature's colors
+            layer_alpha = 1.0 - layer.layerTransparency()/100.0
 
-        # create xml string from etree element and decode it to unicode for further processing
-        xml_string = ET.tostring(layer_legend, encoding='UTF-8')
-        xml_string = xml_string.decode('UTF-8')
-        # all elements must be represented in on single line, so remove inconvenient end of line characters
-        xml_string = xml_string.replace('\n', '')
-        return xml_string
+            if renderer.type() == 'singleSymbol':
+                symbol = renderer.symbol()
+                alpha_factor = symbol.alpha() * layer_alpha
+                symbol_layer = symbol.symbolLayers()[0]  # only considers first layer of symbol
+                set_vector_legend(legend, alpha_factor, symbol_layer)
+
+            elif renderer.type() in ('graduatedSymbol', 'categorizedSymbol' ):
+                set_vector_legend(legend, layer_alpha)
+                legend.set('FieldName', renderer.classAttribute())
+
+                if renderer.type() == 'categorizedSymbol':
+                    value_breaks = renderer.categories()
+                else:
+                    value_breaks = renderer.ranges()
+
+                for value_break in value_breaks:
+                    set_break(legend, value_break, layer_alpha)
+
+            # TODO: Add support to RuleRenderer
+            # elif renderer.type() == 'RuleRenderer':
+            #     rule_list = []
+            #     for children in renderer.rootRule().children():
+            #         getRules(rule_list, children)
+            #     rules = rule_list
+            else:
+                print "This renderer is not supported by gison3dmap"
+
+            if layer.labelsEnabled():
+                label_layer = ET.SubElement(layer_legend, 'LabelLayer')
+                label_settings = QgsPalLayerSettings.fromLayer(layer)
+                set_label(label_layer, layer.name(), label_settings)
+
+    elif isinstance(layer,QgsRasterLayer):
+        renderer = layer.renderer()
+
+        # Create XML with Basic elements of a raster layer
+        layer_legend = ET.Element('RasterVSLayer')
+        layer_legend.set('Nome', layer.name())
+
+        # Getting Layer Filename
+        provider = layer.dataProvider()
+        source = re.sub(r'(.*)\|layerid=\d+', r'\1', provider.dataSourceUri())
+        source = cfg.do_file_mapping(source)
+        layer_legend.set('Filename', source)
+
+        # Setting default values
+        layer_legend.set('Enabled', 'True') # FIXME:: Don't know what this is...
+        layer_legend.set('MinVisible', '0') # FIXME:: Not sure what this is...
+        layer_legend.set('MaxVisible', '1.79769313486232E+308') # FIXME:: Not sure what this is...
+
+        if renderer.type() in (u'singlebandpseudocolor', u'singlebandgray'):
+
+            color_blend = ET.SubElement(layer_legend, 'ColorBlend')
+            colors = ET.SubElement(color_blend, 'Colors')
+            positions = ET.SubElement(color_blend, 'Positions')
+
+            if renderer.type() == u'singlebandpseudocolor':
+                color_ramp = renderer.shader().rasterShaderFunction().colorRampItemList()
+                for item in color_ramp:
+                    color = ET.SubElement(colors,'color')
+                    argb = [item.color.alpha(), item.color.red(), item.color.blue(), item.color.green()]
+                    argb = [str(x) for x in argb]
+
+                    color.set('cor', ",".join(argb))
+                    position = ET.SubElement(positions,'position')
+                    position.set('value', str(item.value))
+
+            if renderer.type() == u'singlebandgray':
+                if renderer.gradient() == 0: # Gradient Black to White
+                    color_0 = '255,0,0,0'
+                    color_1 = '255,255,255,255'
+                else: # Gradient Black to White
+                    color_1 = '255,0,0,0'
+                    color_0 = '255,255,255,255'
+
+                ET.SubElement(colors,'color',{'cor':color_0})
+                ET.SubElement(colors,'color',{'cor':color_1})
+
+                minValue = renderer.contrastEnhancement().minimumValue()
+                maxValue = renderer.contrastEnhancement().maximumValue()
+
+                ET.SubElement(positions,'position',{'value':str(minValue)})
+                ET.SubElement(positions,'position',{'value':str(maxValue)})
+
+    else: # Plugin Layer
+        return None
+
+    # create xml string from etree element and decode it to unicode for further processing
+    xml_string = ET.tostring(layer_legend, encoding='UTF-8')
+    xml_string = xml_string.decode('UTF-8')
+    # all elements must be represented in on single line, so remove inconvenient end of line characters
+    xml_string = xml_string.replace('\n', '')
+    return xml_string
 
 
 
-def set_legend(legend, alpha_factor, symbol_layer=None):
+def set_vector_legend(legend, alpha_factor, symbol_layer=None):
     """
     Function to fill legend attributes with values from the symbolLayer
     """
