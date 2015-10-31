@@ -354,9 +354,9 @@ class gison3dmap:
             else:
                 print "Invalid renderer for layer : ", layer.name() #FIXME:: Use a warning message for this
 
-            commands.append(u'DRAW')
+        commands.append(u'DRAW')
 
-            tocontroller.send_messages(commands)
+        tocontroller.send_messages(commands)
 
 
     def sendMap(self):
