@@ -211,10 +211,6 @@ def set_vector_legend(legend, alpha_factor, symbol_layer=None):
         else:
             legend.set('BackColor', utils.random_color())
             legend.set('LineColor', utils.random_color())
-            # ::FIXME Pass this message to interface
-            print "It was not possible to Render the layer's Symbol. " \
-                  "Only Simple Marker,Simple Fill, Simple Line and Image fill are suported." \
-                  "A random style was used instead"
 
 
 def set_break(legend, value_break, layer_alpha):

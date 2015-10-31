@@ -310,7 +310,8 @@ class gison3dmap:
         if len(commands)>2:
             tocontroller.send_messages(commands)
         else:
-            print "Invalid renderer for layer : ", layer.name()
+            error_msg = "The following layer is not compatible with gison3dmap: " + layer.name()
+            self.iface.messageBar().pushMessage("gison3dmao",error_msg,0,10)
 
     def sendLayer(self):
         """Function to send active layer or layer group to gison3dmap"""
@@ -348,11 +349,12 @@ class gison3dmap:
                 commands.append(u'LEGEND ' + layer_legend)
                 commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
 
-            elif layer.type() == layer.RasterLayer:
+            elif layer.type() == layer.RasterLayer and layer_legend:
                 commands.append(u'DEFINEGRID ' + layer.name() + ',' + layer_legend)
                 commands.append(u'GRID ' + layer.name())
             else:
-                print "Invalid renderer for layer : ", layer.name() #FIXME:: Use a warning message for this
+                error_msg = "The following layer is not compatible with gison3dmap: " + layer.name()
+                self.iface.messageBar().pushMessage("gison3dmao",error_msg,0,10)
 
         commands.append(u'DRAW')
 
@@ -372,20 +374,21 @@ class gison3dmap:
         for layer in visible_layers[::-1]:
             try:
                 layer_legend = get_layer_legend(layer)
-            except:
-                layer_legend = None #FIXME:: To brode error
+            except AttributeError:
+                layer_legend = None
 
             if layer.type() == layer.VectorLayer and layer_legend:
                 commands.append(u'DEFINELAYER ' + define_layer(layer))
                 commands.append(u'LEGEND ' + layer_legend)
                 commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
 
-            elif layer.type() == layer.RasterLayer:
+            elif layer.type() == layer.RasterLayer and layer_legend:
                 commands.append(u'DEFINEGRID ' + layer.name() + ',' + layer_legend)
                 commands.append(u'GRID ' + layer.name())
 
             else:
-                print "Could not project layer: ", layer.name()
+                error_msg = "The following layer is not compatible with gison3dmap: " + layer.name()
+                self.iface.messageBar().pushMessage("gison3dmap",error_msg,0,10)
 
         commands.append(u'DRAW')
 
@@ -393,8 +396,6 @@ class gison3dmap:
         # Meaning that there are no valid layers to project
         if len(commands)>2:
             tocontroller.send_messages(commands)
-        else:
-            print "No valid layers to print"
 
     def clear(self):
         """
