@@ -31,5 +31,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from .gison3dmap import gison3dmap
+    from gison3dmap.gison3dmap import gison3dmap
     return gison3dmap(iface)

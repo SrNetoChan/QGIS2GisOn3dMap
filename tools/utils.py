@@ -22,7 +22,8 @@
 """
 
 import random
-import config
+import gison3dmap.tools.config as config
+
 
 def rgba2argb(rgba,alpha_factor):
     """
@@ -39,15 +40,15 @@ def rgba2argb(rgba,alpha_factor):
     band_values = rgba.split(',')
     # Remove alpha values of the end of the list and append it in the beginning
     alpha = band_values.pop()
-    band_values.insert(0,alpha)
+    band_values.insert(0, alpha)
     # Check is Transparencies are allowed, if not, set alpha value to no transparency
     # Else apply alpha_factor resulting from layer alpha and symbol alpha
     if not config.shared.transparencia:
-        band_values[0] = "255"
+        band_values[0] = '255'
     else:
         band_values[0] = str(int(int(band_values[0]) * alpha_factor))
     # Convert list back to comma separated string
-    argb = ",".join(band_values)
+    argb = ','.join(band_values)
     return argb
 
 
@@ -77,11 +78,11 @@ def random_color():
     :rtype: string
     """
     # The color is completly opaque, thus the 255 at the alpha band
-    color = ['255','','','']
-    for i in range(1,4):
+    color = ['255', '', '', '']
+    for i in range(1, 4):
         # start at 100 to return bright colors
-        color[i] = str(random.randint(100,255))
-    color = ",".join(color)
+        color[i] = str(random.randint(100, 255))
+    color = ','.join(color)
     return color
 
 def stringToArray(array_string):
@@ -110,6 +111,6 @@ def arrayToString(array):
 
 #testing
 if __name__ == '__main__':
-    print rgba2argb('101,102,103,127')
-    print mm2px('0.54')
-    print random_color()
+    print(rgba2argb('101,102,103,127'))
+    print(mm2px('0.54'))
+    print(random_color())

@@ -1,14 +1,14 @@
-# This file contains metadata for your plugin. Since 
-# version 2.0 of QGIS this is the proper way to supply 
-# information about a plugin. The old method of 
-# embedding metadata in __init__.py will 
+# This file contains metadata for your plugin. Since
+# version 2.0 of QGIS this is the proper way to supply
+# information about a plugin. The old method of
+# embedding metadata in __init__.py will
 # is no longer supported since version 2.0.
 
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
 name=gison3dmap
-qgisMinimumVersion=2.10
+qgisMinimumVersion=3.0
 description=QGIS Client for gison3dmap system. Allows the projection of QGIS layers into a physical terrain model
 version=0.2.5
 author=Alexandre Neto (for CCC Geomática)

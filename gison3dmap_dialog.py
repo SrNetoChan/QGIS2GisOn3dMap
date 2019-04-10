@@ -22,16 +22,16 @@
 """
 
 import os, re, codecs
-
-from PyQt4 import QtGui, uic
-
 import xml.etree.ElementTree as ET
+
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'gison3dmap_dialog_base.ui'))
 
 
-class gison3dmapDialog(QtGui.QDialog, FORM_CLASS):
+class gison3dmapDialog(QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """Constructor."""
         super(gison3dmapDialog, self).__init__(parent)
@@ -63,7 +63,7 @@ class gison3dmapDialog(QtGui.QDialog, FORM_CLASS):
         # Make a dictionary with the structure {COMMAND_NAME: [HELP,PARAMETERS]
         commands_dict = dict()
         for chield in root.findall('data'):
-            m = re.match(r"(\w+)_(\w+)", chield.get("name"))
+            m = re.match(r'(\w+)_(\w+)', chield.get('name'))
             command_name = m.group(1).upper()
             if not command_name in commands_dict:
                 commands_dict[command_name] = [None,None]
@@ -77,7 +77,7 @@ class gison3dmapDialog(QtGui.QDialog, FORM_CLASS):
     def update_syntax(self):
         """ Update syntax"""
         # get command name from combobox inputs
-        m = re.match(r"^(\w*)(\s|$)",self.comboBox.currentText())
+        m = re.match(r'^(\w*)(\s|$)', self.comboBox.currentText())
 
         if m:
             key = m.group(1).upper()
@@ -85,8 +85,8 @@ class gison3dmapDialog(QtGui.QDialog, FORM_CLASS):
             if key in self.commands_dict:
                 # Note: using decode('string_escape') to force escape characters incstring to be
                 # used as if they were in a string literal
-                text = u"{0}\n\nParâmetros:\n{1}".format(decode_escapes(self.commands_dict[key][0]),
-                                                         decode_escapes(self.commands_dict[key][1]))
+                text = '{0}\n\nParâmetros:\n{1}'.format(decode_escapes(self.commands_dict[key][0]),
+                                                        decode_escapes(self.commands_dict[key][1]))
             else:
 
                 text = ''
