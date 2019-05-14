@@ -20,17 +20,19 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon
-# Initialize Qt resources from file resources.py
-import resources_rc
-# Import the code for the dialog
-from gison3dmap_dialog import gison3dmapDialog
-from config_dialog import configDialog
 import os.path, sys, re
-from tools.layersxml import get_layer_legend, define_layer, get_layer_filter
-from tools import tocontroller, utils
-import tools.config as config
+
+from qgis.PyQt.QtCore import QTranslator, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtGui import QIcon
+
+from qgis.core import QgsApplication, QgsSettings
+
+from gison3dmap.gison3dmap_dialog import gison3dmapDialog
+from gison3dmap.config_dialog import configDialog
+from gison3dmap.tools.layersxml import get_layer_legend, define_layer, get_layer_filter
+from gison3dmap.tools import tocontroller, utils
+import gison3dmap.tools.config as config
 
 
 class gison3dmap:
@@ -52,18 +54,13 @@ class gison3dmap:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'gison3dmap_{}.qm'.format(locale))
+        locale = QgsApplication.locale()
+        locale_path = '{}/i18n/gison3dmap_{}.qm'.format(self.plugin_dir, locale)
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
-
-            if qVersion() > '4.3.3':
-                QCoreApplication.installTranslator(self.translator)
+            QCoreApplication.installTranslator(self.translator)
 
         # Create the dialogs (after translation) and keep reference
         self.send_commands_dlg = gison3dmapDialog()
@@ -71,10 +68,10 @@ class gison3dmap:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&gison3dmap')
+        self.menu = self.tr('&gison3dmap')
 
-        self.toolbar = self.iface.addToolBar(u'gison3dmap')
-        self.toolbar.setObjectName(u'gison3dmap')
+        self.toolbar = self.iface.addToolBar('gison3dmap')
+        self.toolbar.setObjectName('gison3dmap')
 
         # Save reference from shared configuration instance
         self.cfg = config.shared
@@ -172,41 +169,41 @@ class gison3dmap:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         self.send_Selection_action = self.add_action(
-            ':/plugins/gison3dmap/icons/cmdAddSelection.png',
-            text=self.tr(u'Seleção'),
+            QIcon(os.path.join(self.plugin_dir, 'icons', 'cmdAddSelection.png')),
+            text=self.tr('Seleção'),
             callback=self.sendSelection,
             parent=self.iface.mainWindow(),
             enabled_flag=False)
         self.send_Layer_action = self.add_action(
-            ':/plugins/gison3dmap/icons/cmdAddLayer.png',
-            text=self.tr(u'Camada ou Grupo'),
+            QIcon(os.path.join(self.plugin_dir, 'icons', 'cmdAddLayer.png')),
+            text=self.tr('Camada ou Grupo'),
             callback=self.sendLayer,
             parent=self.iface.mainWindow(),
             enabled_flag=False)
         self.send_Map_action = self.add_action(
-            ':/plugins/gison3dmap/icons/cmdAllLayers.png',
-            text=self.tr(u'Mapa'),
+            QIcon(os.path.join(self.plugin_dir, 'icons', 'cmdAllLayers.png')),
+            text=self.tr('Mapa'),
             callback=self.sendMap,
             parent=self.iface.mainWindow(),
             enabled_flag=False)
         self.add_action(
-            ':/plugins/gison3dmap/icons/cmdClear.png',
-            text=self.tr(u'Limpar'),
+            QIcon(os.path.join(self.plugin_dir, 'icons', 'cmdClear.png')),
+            text=self.tr('Limpar'),
             callback=self.clear,
             parent=self.iface.mainWindow())
         self.add_action(
-            ':/plugins/gison3dmap/icons/cmdComando.png',
-            text=self.tr(u'Enviar comandos'),
+            QIcon(os.path.join(self.plugin_dir, 'icons', 'cmdComando.png')),
+            text=self.tr('Enviar comandos'),
             callback=self.sendCommands,
             parent=self.iface.mainWindow())
         self.add_action(
-            ':/plugins/gison3dmap/icons/cmdConfig.png',
-            text=self.tr(u'Configuração'),
+            QIcon(os.path.join(self.plugin_dir, 'icons', 'cmdConfig.png')),
+            text=self.tr('Configuração'),
             callback=self.configuration,
             parent=self.iface.mainWindow())
 
         # connect signals for button behavior
-        self.iface.currentLayerChanged["QgsMapLayer *"].connect(self.toggle)
+        self.iface.currentLayerChanged['QgsMapLayer *'].connect(self.toggle)
         self.canvas.selectionChanged.connect(self.toggle)
         self.canvas.mapCanvasRefreshed.connect(self.toggle)
 
@@ -214,7 +211,7 @@ class gison3dmap:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&gison3dmap'),
+                self.tr('&gison3dmap'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
@@ -283,7 +280,7 @@ class gison3dmap:
         commands = list()
 
         if self.cfg.clear_before_draw_map:
-            commands.append(u'CLEAR')
+            commands.append('CLEAR')
 
         # Try to get the legend form layer
         layer_legend = get_layer_legend(layer)
@@ -293,25 +290,25 @@ class gison3dmap:
             ids = layer.selectedFeaturesIds()
             ids = [id + 1 for id in ids]
             #convert the list to a string to use in LAYERID command
-            ids_str = ",".join(map(str,ids))
+            ids_str = ','.join(map(str, ids))
 
             # Replace all colors in legend by project selection color
             qcolor = self.canvas.mapSettings().selectionColor()
-            s_color = ",".join(map(str,qcolor.getRgb()))
-            s_color = utils.rgba2argb(s_color,1.0)
+            s_color = ','.join(map(str, qcolor.getRgb()))
+            s_color = utils.rgba2argb(s_color, 1.0)
             layer_legend = re.sub(r'\d{1,3},\d{1,3},\d{1,3},\d{1,3}', s_color, layer_legend)
 
-            commands.append(u'DEFINELAYER ' + define_layer(layer))
-            commands.append(u'LEGEND ' + layer_legend)
-            commands.append(u'LAYERID ' + layer.name() + "," + ids_str)
+            commands.append('DEFINELAYER ' + define_layer(layer))
+            commands.append('LEGEND ' + layer_legend)
+            commands.append('LAYERID ' + layer.name() + ',' + ids_str)
 
-        commands.append(u'DRAW')
+        commands.append('DRAW')
 
-        if len(commands)>2:
+        if len(commands) > 2:
             tocontroller.send_messages(commands)
         else:
-            error_msg = "The following layer is not compatible with gison3dmap: " + layer.name()
-            self.iface.messageBar().pushMessage("gison3dmao",error_msg,0,10)
+            error_msg = 'The following layer is not compatible with gison3dmap: ' + layer.name()
+            self.iface.messageBar().pushMessage('gison3dmao', error_msg, 0, 10)
 
     def sendLayer(self):
         """Function to send active layer or layer group to gison3dmap"""
@@ -335,7 +332,7 @@ class gison3dmap:
         commands = list()
 
         if self.cfg.clear_before_draw_map:
-            commands.append(u'CLEAR')
+            commands.append('CLEAR')
 
         for layer in group_layers[::-1]: # [::-1] is used to reverse the order of layers to project
             # Try to get the legend form layer
@@ -345,21 +342,20 @@ class gison3dmap:
                 layer_legend = None
 
             if layer.type() == layer.VectorLayer and layer_legend:
-                commands.append(u'DEFINELAYER ' + define_layer(layer))
-                commands.append(u'LEGEND ' + layer_legend)
-                commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
+                commands.append('DEFINELAYER ' + define_layer(layer))
+                commands.append('LEGEND ' + layer_legend)
+                commands.append('LAYERSQL ' + layer.name() + ', ' + get_layer_filter(layer))
 
             elif layer.type() == layer.RasterLayer and layer_legend:
-                commands.append(u'DEFINEGRID ' + layer.name() + ',' + layer_legend)
-                commands.append(u'GRID ' + layer.name())
+                commands.append('DEFINEGRID ' + layer.name() + ',' + layer_legend)
+                commands.append('GRID ' + layer.name())
             else:
-                error_msg = "The following layer is not compatible with gison3dmap: " + layer.name()
-                self.iface.messageBar().pushMessage("gison3dmao",error_msg,0,10)
+                error_msg = 'The following layer is not compatible with gison3dmap: ' + layer.name()
+                self.iface.messageBar().pushMessage('gison3dmao', error_msg, 0, 10)
 
-        commands.append(u'DRAW')
+        commands.append('DRAW')
 
         tocontroller.send_messages(commands)
-
 
     def sendMap(self):
         """Function to send all visible layers to gison3dmap"""
@@ -367,7 +363,7 @@ class gison3dmap:
         commands = list()
 
         if self.cfg.clear_before_draw_map:
-            commands.append(u'CLEAR')
+            commands.append('CLEAR')
 
         # Since last defined layer will be projected above the other, we need to iterate the
         # Visible layer at the inverse order,i.e., bottom to top. That's why [::-1] was used
@@ -378,23 +374,23 @@ class gison3dmap:
                 layer_legend = None
 
             if layer.type() == layer.VectorLayer and layer_legend:
-                commands.append(u'DEFINELAYER ' + define_layer(layer))
-                commands.append(u'LEGEND ' + layer_legend)
-                commands.append(u'LAYERSQL ' + layer.name() + u', ' + get_layer_filter(layer))
+                commands.append('DEFINELAYER ' + define_layer(layer))
+                commands.append('LEGEND ' + layer_legend)
+                commands.append('LAYERSQL ' + layer.name() + ', ' + get_layer_filter(layer))
 
             elif layer.type() == layer.RasterLayer and layer_legend:
-                commands.append(u'DEFINEGRID ' + layer.name() + ',' + layer_legend)
-                commands.append(u'GRID ' + layer.name())
+                commands.append('DEFINEGRID ' + layer.name() + ',' + layer_legend)
+                commands.append('GRID ' + layer.name())
 
             else:
-                error_msg = "The following layer is not compatible with gison3dmap: " + layer.name()
-                self.iface.messageBar().pushMessage("gison3dmap",error_msg,0,10)
+                error_msg = 'The following layer is not compatible with gison3dmap: ' + layer.name()
+                self.iface.messageBar().pushMessage('gison3dmap', error_msg, 0, 10)
 
-        commands.append(u'DRAW')
+        commands.append('DRAW')
 
         # Check if list of commands are more that just CLEAR and DRAW and a DEFINE LAYER
         # Meaning that there are no valid layers to project
-        if len(commands)>2:
+        if len(commands) > 2:
             tocontroller.send_messages(commands)
 
     def clear(self):
@@ -402,7 +398,7 @@ class gison3dmap:
         Function to clear all layers from gison3dmap
         """
 
-        commands = [u'CLEAR',u'DRAW']
+        commands = ['CLEAR', 'DRAW']
         tocontroller.send_messages(commands)
 
     def sendCommands(self):

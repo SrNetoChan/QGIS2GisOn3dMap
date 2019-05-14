@@ -21,7 +21,11 @@
  ***************************************************************************/
 """
 
-import socket, config, datetime, os
+import socket
+import os
+import datetime
+
+import gison3dmap.tools.config as config
 
 # Get current settings from the config module
 cfg = config.shared
@@ -33,7 +37,7 @@ def send_messages(messages=[]):
     The function iterate the list of strings and send them to the
     Configurated Socket connection
     """
-    ip_port = (cfg.controller,9991)
+    ip_port = (cfg.controller, 9991)
 
     if cfg.log:
         global f
@@ -52,11 +56,11 @@ def send_messages(messages=[]):
             s.send(message.encode('utf-16'))
             report(message)
         except UnicodeDecodeError as e:
-            error_msg = u"UnicodeDecodeError: %s" % str(e)
+            error_msg = 'UnicodeDecodeError: {}'.format(str(e))
             report(error_msg)
 
         except socket.error as e:
-            error_msg = u"Socket Error: %s" % str(e)
+            error_msg = 'Socket Error: {}'.format(str(e))
             report(error_msg)
 
         finally:
@@ -77,17 +81,17 @@ def report(message):
 
     # Try print commands into th console. Usefull for commands debugging
     try:
-        print message
+        print(message)
     except:
         pass
 
 # Tests
 if __name__ == '__main__':
 
-    TCP_IP = "192.168.56.1"
+    TCP_IP = '192.168.56.1'
     TCP_PORT = 9991
     BUFFER_SIZE = 256
-    MESSAGE = u'traço'.encode('utf-16')
+    MESSAGE = 'traço'.encode('utf-16')
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((TCP_IP, TCP_PORT))
@@ -96,4 +100,3 @@ if __name__ == '__main__':
     #data = s.recv(BUFFER_SIZE)
     #print "received data:", data
     s.close()
-

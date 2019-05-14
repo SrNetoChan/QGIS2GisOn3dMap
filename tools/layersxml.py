@@ -20,12 +20,13 @@
  *                                                                         *
  ***************************************************************************/
 """
-
-from qgis.core import *
-
 import xml.etree.ElementTree as ET
 import re
-import utils, config
+
+from qgis.core import QgsVectorLayer
+
+import gison3dmap.tools.utils as utils
+import gison3dmap.tools.config as config
 
 # Get current settings from the config module
 cfg = config.shared
@@ -40,9 +41,9 @@ def get_layer_legend(layer):
     :returns: XML with all needed information about the layer
     :rtype: String
     """
-    if isinstance(layer,QgsVectorLayer):
+    if isinstance(layer, QgsVectorLayer):
 
-        renderer = layer.rendererV2()
+        renderer = layer.renderer()
 
         # Check if render is supported by gison3dmap
         if renderer.type() not in ('singleSymbol', 'categorizedSymbol', 'graduatedSymbol', 'RuleRenderer'):
@@ -82,14 +83,14 @@ def get_layer_legend(layer):
             #         getRules(rule_list, children)
             #     rules = rule_list
             else:
-                print "This renderer is not supported by gison3dmap"
+                print('This renderer is not supported by gison3dmap')
 
             if layer.labelsEnabled():
                 label_layer = ET.SubElement(layer_legend, 'LabelLayer')
                 label_settings = QgsPalLayerSettings.fromLayer(layer)
                 set_label(label_layer, layer.name(), label_settings)
 
-    elif isinstance(layer,QgsRasterLayer):
+    elif isinstance(layer, QgsRasterLayer):
         renderer = layer.renderer()
 
         # Create XML with Basic elements of a raster layer
@@ -107,24 +108,24 @@ def get_layer_legend(layer):
         layer_legend.set('MinVisible', '0') # FIXME:: Not sure what this is...
         layer_legend.set('MaxVisible', '1.79769313486232E+308') # FIXME:: Not sure what this is...
 
-        if renderer.type() in (u'singlebandpseudocolor', u'singlebandgray'):
+        if renderer.type() in ('singlebandpseudocolor', 'singlebandgray'):
 
             color_blend = ET.SubElement(layer_legend, 'ColorBlend')
             colors = ET.SubElement(color_blend, 'Colors')
             positions = ET.SubElement(color_blend, 'Positions')
 
-            if renderer.type() == u'singlebandpseudocolor':
+            if renderer.type() == 'singlebandpseudocolor':
                 color_ramp = renderer.shader().rasterShaderFunction().colorRampItemList()
                 for item in color_ramp:
                     color = ET.SubElement(colors,'color')
                     argb = [item.color.alpha(), item.color.red(), item.color.blue(), item.color.green()]
                     argb = [str(x) for x in argb]
 
-                    color.set('cor', ",".join(argb))
+                    color.set('cor', ','.join(argb))
                     position = ET.SubElement(positions,'position')
                     position.set('value', str(item.value))
 
-            if renderer.type() == u'singlebandgray':
+            if renderer.type() == 'singlebandgray':
                 if renderer.gradient() == 0: # Gradient Black to White
                     color_0 = '255,0,0,0'
                     color_1 = '255,255,255,255'
@@ -132,14 +133,14 @@ def get_layer_legend(layer):
                     color_1 = '255,0,0,0'
                     color_0 = '255,255,255,255'
 
-                ET.SubElement(colors,'color',{'cor':color_0})
-                ET.SubElement(colors,'color',{'cor':color_1})
+                ET.SubElement(colors, 'color', {'cor':color_0})
+                ET.SubElement(colors, 'color', {'cor':color_1})
 
                 minValue = renderer.contrastEnhancement().minimumValue()
                 maxValue = renderer.contrastEnhancement().maximumValue()
 
-                ET.SubElement(positions,'position',{'value':str(minValue)})
-                ET.SubElement(positions,'position',{'value':str(maxValue)})
+                ET.SubElement(positions, 'position', {'value':str(minValue)})
+                ET.SubElement(positions, 'position', {'value':str(maxValue)})
 
     else: # Plugin Layer
         return None
@@ -177,31 +178,31 @@ def set_vector_legend(legend, alpha_factor, symbol_layer=None):
 
         if layer_type == 'SimpleFill':
             if properties['style'] != 'no':
-                legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
+                legend.set('BackColor', utils.rgba2argb(properties['color'], alpha_factor))
 
             if properties['style'] not in ('solid','no'):
                 legend.set('EnableHatch', 'True')
                 legend.set('Hatch', '0') # FIXME:: Hatchs in QGIS are different from gison3dmap
 
             if properties['outline_style'] != 'no':
-                legend.set('LineColor', utils.rgba2argb(properties['outline_color'],alpha_factor))
+                legend.set('LineColor', utils.rgba2argb(properties['outline_color'], alpha_factor))
 
             legend.set('Width', utils.mm2px(properties['outline_width']))
             legend.set('DashPattern', '')  # ??
 
         elif layer_type == 'SimpleMarker':
-            print properties
-            legend.set('BackColor', utils.rgba2argb(properties['color'],alpha_factor))
+            print(properties)
+            legend.set('BackColor', utils.rgba2argb(properties['color'], alpha_factor))
 
             if properties['outline_style'] != 'no':
-                legend.set('LineColor', utils.rgba2argb(properties['outline_color'],alpha_factor))
+                legend.set('LineColor', utils.rgba2argb(properties['outline_color'], alpha_factor))
 
             legend.set('Width', utils.mm2px(properties['size']))
             legend.set('DashPattern', '')  # ??
 
         elif layer_type == 'SimpleLine':
             if properties['line_style'] != 'no':
-                legend.set('LineColor', utils.rgba2argb(properties['line_color'],alpha_factor))
+                legend.set('LineColor', utils.rgba2argb(properties['line_color'], alpha_factor))
             legend.set('Width', utils.mm2px(properties['line_width']))
             legend.set('DashPattern', '')  # ??
 
@@ -234,20 +235,20 @@ def set_break(legend, value_break, layer_alpha):
     line_color = ''
     if layer_type == 'SimpleMarker' or layer_type == 'SimpleFill':
         if properties['style'] != 'no':
-            color = utils.rgba2argb(properties['color'],alpha_factor)
+            color = utils.rgba2argb(properties['color'], alpha_factor)
         if properties['outline_style'] != 'no':
-            line_color = utils.rgba2argb(properties['outline_color'],alpha_factor)
+            line_color = utils.rgba2argb(properties['outline_color'], alpha_factor)
         line_width = properties['outline_width']
 
     elif layer_type == 'SimpleLine':
         if properties['line_style'] != 'no':
-            line_color = utils.rgba2argb(properties['line_color'],alpha_factor)
+            line_color = utils.rgba2argb(properties['line_color'], alpha_factor)
         line_width = properties['line_width']
     else:
         color = utils.random_color()
         line_color = '255,0,0,0'
         line_width = '1'
-        print "Not possible to render the symbol properly a default was used instead"
+        print('Not possible to render the symbol properly a default was used instead')
 
     legend_break.set('EndColor', color)
     legend_break.set('StartColor', color)
@@ -258,14 +259,14 @@ def set_break(legend, value_break, layer_alpha):
     # This is the only difference between graduated ranges and categorized categories
     try:
         # This will run for graduated layers
-        legend_break.set('StartText', "{:.9f}".format(value_break.lowerValue()))
-        legend_break.set('EndText', "{:.9f}".format(value_break.upperValue()))
+        legend_break.set('StartText', '{:.9f}'.format(value_break.lowerValue()))
+        legend_break.set('EndText', '{:.9f}'.format(value_break.upperValue()))
     except AttributeError:
         # This will run for categorized layers
         value = value_break.value()
         # Convert to string in case of non string values
-        if not isinstance(value, basestring):
-            value = unicode(value)
+        if not isinstance(value, str):
+            value = str(value)
         legend_break.set('StartText', value) # FIXME::Must check if values are always strings
         legend_break.set('EndText', value)
 
@@ -322,7 +323,7 @@ def set_label(label_layer, layer_name, lab_set):
             #qglab_set.shapeFillColor # FIXME:: Need to convert to this kind of colors
             cor_fundo.set('Cor', '16777215') #hardcoded as White
         else:
-            print "The label background type is not supported. Choose Rectangular instead."
+            print('The label background type is not supported. Choose Rectangular instead.')
 
     if lab_set.bufferDraw:
         halo = ET.SubElement(label_layer, 'halo')
@@ -336,7 +337,7 @@ def set_label(label_layer, layer_name, lab_set):
     offset.set('OffsetY', utils.mm2px(lab_set.yOffset))
 
     fonte = ET.SubElement(label_layer, 'Fonte')
-    fonte.set('Tamanho', "{:.1f}".format(lab_set.textFont.pointSizeF()))
+    fonte.set('Tamanho', '{:.1f}'.format(lab_set.textFont.pointSizeF()))
     fonte.set('Nome', lab_set.textFont.family())
     fonte.set('StrikeOut', str(lab_set.textFont.strikeOut()))
     fonte.set('Underline', str(lab_set.textFont.underline()))
@@ -357,10 +358,10 @@ def define_layer(layer):
     # If layer is vectorlayer get storage type
     if layer.type() == layer.VectorLayer:
         # provider_type = provider.storageType() #FIXME:: Make it work for other providers
-        provider_type = u'SHP' # Hardcoded for shapefile only
-        result = layer_name + u',' + provider_type + ',' + source
+        provider_type = 'SHP' # Hardcoded for shapefile only
+        result = layer_name + ',' + provider_type + ',' + source
     else:
-        result = layer_name + u',' + source
+        result = layer_name + ',' + source
 
     return result
 
@@ -368,7 +369,7 @@ def define_layer(layer):
 def get_layer_filter(layer):
     subset_string = layer.dataProvider().subsetString()
     if len(subset_string) == 0:
-        return u'1=1'
+        return '1=1'
     else:
         # Convert subset_string to gison3dmap syntax
         # replace double quotes by square brackets
@@ -376,6 +377,6 @@ def get_layer_filter(layer):
         p = re.compile(r'"(.*?)"')
         s = p.sub(r'[\1]', s)
 
-        s = s.replace("'" , u'"')
-        s = s.replace('!=' , u'<>')
+        s = s.replace("'" , '"')
+        s = s.replace('!=' , '<>')
         return s

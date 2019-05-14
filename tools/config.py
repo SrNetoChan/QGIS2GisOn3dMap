@@ -21,43 +21,43 @@
  ***************************************************************************/
 """
 
-from PyQt4.QtCore import QSettings
+from qgis.core import QgsSettings
 
 class config:
     """QGIS Plugin Implementation."""
 
     def __init__(self):
         """Constructor."""
-        s = QSettings()
-        self.num_drive_map = s.value("gison3dmap/NumDriveMap","")
-        self.controller = s.value("gison3dmap/Controller","localhost")
-        self.log = s.value("gison3dmap/Log",False) == 'true'
-        self.log_erros = s.value("gison3dmap/LogErros",False) == 'true'
-        self.transparencia = s.value("gison3dmap/Transparencia",False) == 'true'
-        self.symbol_scale = float(s.value("gison3dmap/SymbolScale",1))
-        self.clear_before_draw_map = s.value("gison3dmap/ClearBeforeDrawMap",True) == 'true'
-        self.display_multimedia = s.value("gison3dmap/DisplayMultimedia","dword:00000000")
-        self.host_multimedia = s.value("gison3dmap/HostMultimedia","localhost")
-        self.log_path = s.value("gison3dmap/LogPath","")
-        self.file_map = s.value("gison3dmap/FileMap",None)
+        s = QgsSettings()
+        self.num_drive_map = s.value('gison3dmap/NumDriveMap', '', str)
+        self.controller = s.value('gison3dmap/Controller', 'localhost', str)
+        self.log = s.value('gison3dmap/Log', False, bool)
+        self.log_erros = s.value('gison3dmap/LogErros', False, bool)
+        self.transparencia = s.value('gison3dmap/Transparencia', False, bool)
+        self.symbol_scale = s.value('gison3dmap/SymbolScale', 1.0, float)
+        self.clear_before_draw_map = s.value('gison3dmap/ClearBeforeDrawMap', True, bool)
+        self.display_multimedia = s.value('gison3dmap/DisplayMultimedia', 'dword:00000000', str)
+        self.host_multimedia = s.value('gison3dmap/HostMultimedia', 'localhost', str)
+        self.log_path = s.value('gison3dmap/LogPath', '')
+        self.file_map = s.value('gison3dmap/FileMap', None)
 
     def storeSettings(self):
         """
         Saves plugin current user settings in System native way to store settings,
         that is — registry (on Windows), .plist file (on Mac OS X) or .ini file (on Unix).
         """
-        s = QSettings()
+        s = QgsSettings()
 
-        s.setValue("gison3dmap/Controller", self.controller)
-        s.setValue("gison3dmap/Log", self.log)
-        s.setValue("gison3dmap/LogErros", self.log_erros)
-        s.setValue("gison3dmap/Transparencia", self.transparencia)
-        s.setValue("gison3dmap/SymbolScale", self.symbol_scale)
-        s.setValue("gison3dmap/ClearBeforeDrawMap", self.clear_before_draw_map)
-        s.setValue("gison3dmap/DisplayMultimedia",self.display_multimedia)
-        s.setValue("gison3dmap/HostMultimedia",  self.host_multimedia)
-        s.setValue("gison3dmap/LogPath", self.log_path)
-        s.setValue("gison3dmap/FileMap", self.file_map)
+        s.setValue('gison3dmap/Controller', self.controller)
+        s.setValue('gison3dmap/Log', self.log)
+        s.setValue('gison3dmap/LogErros', self.log_erros)
+        s.setValue('gison3dmap/Transparencia', self.transparencia)
+        s.setValue('gison3dmap/SymbolScale', self.symbol_scale)
+        s.setValue('gison3dmap/ClearBeforeDrawMap', self.clear_before_draw_map)
+        s.setValue('gison3dmap/DisplayMultimedia', self.display_multimedia)
+        s.setValue('gison3dmap/HostMultimedia', self.host_multimedia)
+        s.setValue('gison3dmap/LogPath', self.log_path)
+        s.setValue('gison3dmap/FileMap', self.file_map)
 
     def do_file_mapping(self, source):
         """
@@ -70,7 +70,7 @@ class config:
         # origin strings (at [0]) by destination string (at [1])
         if self.file_map:
             for pair in self.file_map:
-                remote_source = remote_source.replace(pair[0],pair[1])
+                remote_source = remote_source.replace(pair[0], pair[1])
 
         # Revert dashes in case client is unix based
         remote_source = remote_source.replace('/','\\')
