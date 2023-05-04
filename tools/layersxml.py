@@ -56,11 +56,11 @@ def get_layer_legend(layer):
             legend = ET.SubElement(vector_layer_legend, 'Legend')
 
             # Getting layer's transparency to further use in feature's colors
-            layer_alpha = 1.0 - layer.layerTransparency()/100.0
+            layer_alpha = layer.opacity()
 
             if renderer.type() == 'singleSymbol':
                 symbol = renderer.symbol()
-                alpha_factor = symbol.alpha() * layer_alpha
+                alpha_factor = symbol.opacity() * layer_alpha
                 symbol_layer = symbol.symbolLayers()[0]  # only considers first layer of symbol
                 set_vector_legend(legend, alpha_factor, symbol_layer)
 

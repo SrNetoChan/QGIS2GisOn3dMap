@@ -77,7 +77,7 @@ def report(message):
     """
     if cfg.log:
         log_line = message + '\n'
-        f.write(log_line.encode('UTF-8'))
+        f.write(log_line)
 
     # Try print commands into th console. Usefull for commands debugging
     try:

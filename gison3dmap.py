@@ -308,7 +308,7 @@ class gison3dmap:
             tocontroller.send_messages(commands)
         else:
             error_msg = 'The following layer is not compatible with gison3dmap: ' + layer.name()
-            self.iface.messageBar().pushMessage('gison3dmao', error_msg, 0, 10)
+            self.iface.messageBar().pushMessage('gison3dmap', error_msg, 0, 10)
 
     def sendLayer(self):
         """Function to send active layer or layer group to gison3dmap"""
@@ -335,7 +335,7 @@ class gison3dmap:
             commands.append('CLEAR')
 
         for layer in group_layers[::-1]: # [::-1] is used to reverse the order of layers to project
-            # Try to get the legend form layer
+            # Try to get the legend from layer
             try:
                 layer_legend = get_layer_legend(layer)
             except AttributeError:
@@ -368,8 +368,9 @@ class gison3dmap:
         # Since last defined layer will be projected above the other, we need to iterate the
         # Visible layer at the inverse order,i.e., bottom to top. That's why [::-1] was used
         for layer in visible_layers[::-1]:
+            layer_legend = get_layer_legend(layer)
             try:
-                layer_legend = get_layer_legend(layer)
+                 layer_legend = get_layer_legend(layer)
             except AttributeError:
                 layer_legend = None
 
